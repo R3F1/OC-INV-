@@ -286,14 +286,15 @@ body.dark input, body.dark button {
       updateSummary(data);
     }
 
-    function changeQty(index, delta) {
-      const cell = document.getElementById(`qty-${index}`);
-      let val = parseInt(cell.textContent);
-      val = Math.max(0, val + delta);
-      cell.textContent = val;
-      document.getElementById(`input-${index}`).value = val;
-      saveRow(index, val);
-    }
+    
+function changeQty(index, delta) {
+  const input = document.getElementById(`input-${index}`);
+  let val = parseInt(input.value);
+  if (isNaN(val)) val = 0;
+  val += delta;
+  input.value = val;
+}
+
 
     
 
@@ -379,6 +380,18 @@ function toggleConfirm(index) {
     button.classList.remove("hidden");
   } else {
     button.classList.add("hidden");
+  }
+}
+
+
+function confirmAndChange(index, delta) {
+  if (confirm("Czy na pewno chcesz to wykonać?")) {
+    changeQty(index, delta);
+  }
+}
+function confirmAndSet(index) {
+  if (confirm("Czy na pewno chcesz zatwierdzić tę zmianę?")) {
+    setQty(index);
   }
 }
 
