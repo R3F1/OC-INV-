@@ -10,12 +10,13 @@
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&amp;display=swap" rel="stylesheet"/>
 <style>
     body {
-      background: linear-gradient(to right, #1e3c72, #2a5298);
+      background: url('background_darkened.jpg') no-repeat center center fixed;
+  background-size: cover;
       background-size: cover;
     }
     .overlay {
-  background-color: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
+  background-color: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
       background-color: rgba(255, 255, 255, 0.85);
@@ -217,10 +218,10 @@ body.dark input, body.dark button {
 </head>
 <body><button id="theme-toggle" style="position: fixed; top: 20px; right: 20px; z-index: 1000; background: #1565c0; color: white; border: none; padding: 10px; border-radius: 50%; font-size: 20px; cursor: pointer;">🌙</button>
 <div class="overlay">
-<div id="alert-banner" style="display:none; background-color:#ffcdd2; color:#b71c1c; font-weight:bold; padding:6px 12px; border-radius: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; font-size: 14px; justify-content: flex-end;">
+<div id="alert-banner" style="display:none; background-color:#ffcdd2; color:#b71c1c; font-weight:bold; padding:6px 12px; border-radius: 12px; margin-bottom: 20px; display: inline-flex; align-items: center; gap: 8px; font-size: 14px; justify-content: center; box-shadow: 0 4px 12px rgba(183, 28, 28, 0.4);">
 <i class="fa fa-bell fa-shake" style="font-size: 14px;"></i>
 <span id="alert-text">Alert</span>
-<button id="filter-zero" style="background-color:#c62828; color:white; border:none; border-radius:8px; padding:4px 8px; cursor:pointer; font-size: 13px;">
+<button id="filter-zero" style="background-color:#c62828; color:white; border:none; border-radius:8px; padding:6px 10px; cursor:pointer; font-size: 13px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);">
   🔍 Pokaż tylko zerowe
 </button>
 </div>
