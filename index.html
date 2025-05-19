@@ -287,13 +287,13 @@ body.dark input, body.dark button {
     }
 
     
+
 function changeQty(index, delta) {
-  const input = document.getElementById(`input-${index}`);
-  let val = parseInt(input.value);
-  if (isNaN(val)) val = 0;
-  val += delta;
-  input.value = val;
+  const qty = parseInt(document.getElementById(`qty-${index}`).textContent);
+  const newProposed = delta > 0 ? 1 : -1;
+  document.getElementById(`input-${index}`).value = newProposed;
 }
+
 
 
     
