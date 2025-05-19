@@ -20,15 +20,10 @@
     #pin-screen, #app {
       display: none;
       width: 100%;
-      max-width: 800px;
+      max-width: 900px;
     }
     #pin-screen {
       display: block;
-    }
-    input[type="number"], input[type="text"] {
-      width: 60px;
-      text-align: center;
-      font-size: 16px;
     }
     table {
       border-collapse: collapse;
@@ -83,8 +78,8 @@
   </div>
 
   <script>
-    const pin = "lcdr";
-    const spreadsheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQY8Ig67cQK39ZgmcZiTJDh9Rk__EWkkvgYnI6Oc6kWkRl-PAiIQoHphxBhCM2fMwGYtbqxxRYFT7l2/pub?output=csv";
+    const pin = "6615";
+    const apiUrl = "https://wispy-waterfall-e267.lukaszarmiajotpe.workers.dev/";
 
     function checkPin() {
       const input = document.getElementById('pin-input').value;
@@ -98,42 +93,38 @@
     }
 
     async function loadData() {
-      const res = await fetch(spreadsheetUrl);
-      const text = await res.text();
-      const rows = text.split('\n').slice(1);
+      const res = await fetch(apiUrl);
+      const json = await res.json();
       const tbody = document.querySelector("#data-table tbody");
       tbody.innerHTML = "";
-      rows.forEach(row => {
-        const [vendor, model, pn, qty] = row.split(',');
+      json.forEach((row, index) => {
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td>${vendor}</td>
-          <td>${model}</td>
-          <td>${pn}</td>
-          <td id="qty">${qty}</td>
+          <td>${row.VENDOR || ""}</td>
+          <td>${row.MODEL || ""}</td>
+          <td>${row.PN || ""}</td>
+          <td id="qty-${index}">${row.Ilość || 0}</td>
           <td>
-            <button onclick="changeQty(this, 1)">+</button>
-            <button onclick="changeQty(this, -1)">-</button>
+            <button onclick="changeQty(${index}, 1)">+</button>
+            <button onclick="changeQty(${index}, -1)">-</button>
           </td>`;
         tbody.appendChild(tr);
       });
     }
 
-    function changeQty(btn, delta) {
-      const row = btn.closest("tr");
-      const cell = row.querySelector("#qty");
-      let current = parseInt(cell.textContent);
+    function changeQty(index, delta) {
+      const qtyCell = document.getElementById(`qty-${index}`);
+      let current = parseInt(qtyCell.textContent);
       current = Math.max(0, current + delta);
-      cell.textContent = current;
+      qtyCell.textContent = current;
     }
 
     document.getElementById("export").addEventListener("click", () => {
-      const rows = document.querySelectorAll("#data-table tr");
+      const rows = document.querySelectorAll("#data-table tbody tr");
       let csv = "Vendor,Model,PN,Ilość\n";
-      rows.forEach((row, i) => {
-        if (i === 0) return;
-        const cols = row.querySelectorAll("td");
-        const data = Array.from(cols).slice(0, 4).map(td => td.textContent);
+      rows.forEach(row => {
+        const cells = row.querySelectorAll("td");
+        const data = Array.from(cells).slice(0, 4).map(td => td.textContent);
         csv += data.join(",") + "\n";
       });
       const blob = new Blob([csv], { type: "text/csv" });
