@@ -282,6 +282,8 @@ body.dark input, body.dark button {
     }
 
     function changeQty(index, delta) {
+  modifyQty(index, delta);
+}
       const cell = document.getElementById(`qty-${index}`);
       let val = parseInt(cell.textContent);
       val = Math.max(0, val + delta);
@@ -291,11 +293,6 @@ body.dark input, body.dark button {
     }
 
     function setQty(index) {
-  if (!infoAcknowledged && !localStorage.getItem("infoShown")) {
-    document.getElementById("info-modal").style.display = "flex";
-    return;
-  }
-
       const input = document.getElementById(`input-${index}`);
       let val = parseInt(input.value);
       val = Math.max(0, isNaN(val) ? 0 : val);
@@ -404,30 +401,44 @@ document.getElementById("filter-zero").addEventListener("click", () => {
 });
 
 
-let infoAcknowledged = false;
+let pendingIndex = null;
+let proposedQty = null;
+
+function modifyQty(index, delta) {
+  const current = parseInt(document.getElementById(`qty-${index}`).textContent);
+  const newQty = current + delta;
+  if (newQty < 0) return;
+  proposedQty = newQty;
+  pendingIndex = index;
+  document.getElementById('confirm-message').textContent = `Czy na pewno chcesz zmienić ilość na ${newQty}?`;
+  document.getElementById('confirm-modal').style.display = 'flex';
+}
 
 document.addEventListener("DOMContentLoaded", () => {
-  const closeBtn = document.getElementById("info-close");
-  const infoModal = document.getElementById("info-modal");
+  document.getElementById("modal-yes").addEventListener("click", () => {
+    document.getElementById('confirm-modal').style.display = 'none';
+    document.getElementById(`qty-${pendingIndex}`).textContent = proposedQty;
+    document.getElementById(`input-${pendingIndex}`).value = proposedQty;
+    saveRow(pendingIndex, proposedQty);
+  });
 
-  if (!localStorage.getItem("infoShown")) {
-    infoModal.style.display = "flex";
-  }
-
-  closeBtn.addEventListener("click", () => {
-    infoModal.style.display = "none";
-    localStorage.setItem("infoShown", "true");
-    infoAcknowledged = true;
+  document.getElementById("modal-no").addEventListener("click", () => {
+    document.getElementById('confirm-modal').style.display = 'none';
+    pendingIndex = null;
+    proposedQty = null;
   });
 });
 </script>
 </div>
 <audio id="success-sound" preload="auto" src="https://www.soundjay.com/buttons/sounds/button-3.mp3"></audio>
 
-<div id="info-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:9999; align-items:center; justify-content:center;">
+<div id="confirm-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:9999; align-items:center; justify-content:center;">
 <div style="background:white; padding:20px 30px; border-radius:12px; max-width:400px; width:90%; text-align:center; box-shadow: 0 0 20px rgba(0,0,0,0.3);">
-<p style="font-weight:bold; font-size:16px; color:#333;">ℹ️ Sprawdź poprawność danych przed zatwierdzeniem.</p>
-<button id="info-close" style="margin-top:20px; background:#2196f3; color:white; padding:8px 20px; border:none; border-radius:8px;">Zamknij</button>
+<p id="confirm-message" style="font-weight:bold; font-size:16px; color:#333;">Czy na pewno chcesz zmienić ilość na X?</p>
+<div style="margin-top:20px;">
+<button id="modal-yes" style="background:#4caf50; color:white; padding:8px 20px; border:none; border-radius:8px; margin-right:10px;">Tak</button>
+<button id="modal-no" style="background:#f44336; color:white; padding:8px 20px; border:none; border-radius:8px;">Anuluj</button>
+</div>
 </div>
 </div>
 </body>
