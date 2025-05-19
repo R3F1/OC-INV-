@@ -5,85 +5,114 @@
   <title>OC INWENTARYZACJA</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://apis.google.com/js/api.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(to bottom, #f0f4f8, #d9e2ec);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #dfe9f3, #ffffff);
       margin: 0;
       padding: 0;
+      animation: fadeIn 1s ease-in;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
     header {
-      background-color: #1a73e8;
+      background: linear-gradient(to right, #1a73e8, #4285f4);
       color: white;
-      padding: 20px;
+      padding: 25px;
       text-align: center;
-      font-size: 32px;
+      font-size: 34px;
       font-weight: bold;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 15px;
+    }
+    header i {
+      font-size: 30px;
     }
     .toolbar {
-      width: 90%;
+      width: 95%;
       margin: 20px auto;
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
       justify-content: center;
+      animation: slideIn 0.8s ease-out;
+    }
+    @keyframes slideIn {
+      from { transform: translateY(-20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
     }
     .toolbar input {
       padding: 10px;
       font-size: 16px;
       width: 300px;
       border: 1px solid #ccc;
-      border-radius: 6px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
     .toolbar button {
-      padding: 10px 16px;
+      padding: 10px 18px;
       font-size: 16px;
-      background-color: #4caf50;
+      background-color: #1a73e8;
       color: white;
       border: none;
-      border-radius: 6px;
+      border-radius: 8px;
       cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    .toolbar button:hover {
+      background-color: #1558c0;
     }
     table {
-      width: 90%;
-      margin: 20px auto;
+      width: 95%;
+      margin: 30px auto;
       border-collapse: collapse;
       background-color: white;
-      box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 0 14px rgba(0, 0, 0, 0.08);
+      border-radius: 10px;
+      overflow: hidden;
+      animation: fadeIn 1.2s ease-in;
     }
     th, td {
-      padding: 12px;
+      padding: 14px;
       text-align: center;
-      border: 1px solid #ccc;
+      border-bottom: 1px solid #eee;
     }
     th {
-      background-color: #f1f1f1;
+      background: #f8f9fa;
     }
     .add {
       background-color: #4caf50;
-      color: white;
     }
     .remove {
       background-color: #f44336;
-      color: white;
     }
     input.qty-input {
-      width: 60px;
+      width: 70px;
       text-align: center;
-      padding: 6px;
+      padding: 8px;
       font-size: 15px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
     }
   </style>
 </head>
 <body>
-  <header>OC INWENTARYZACJA</header>
+  <header>
+    <i class="fas fa-boxes-stacked"></i>
+    OC INWENTARYZACJA
+  </header>
 
   <div class="toolbar">
-    <input type="text" id="search" placeholder="Szukaj modelu...">
-    <button onclick="exportToExcel()">📤 Export do Excela</button>
-    <button onclick="resetQuantities()">🔄 Reset ilości</button>
-    <button onclick="saveToSheet()">💾 Zapisz do Google Sheets</button>
-    <button onclick="location.reload()">📥 Import danych z arkusza</button>
+    <input type="text" id="search" placeholder="🔍 Szukaj modelu...">
+    <button onclick="exportToExcel()"><i class="fas fa-file-excel"></i> Export do Excela</button>
+    <button onclick="resetQuantities()"><i class="fas fa-rotate-left"></i> Reset ilości</button>
+    <button onclick="saveToSheet()"><i class="fas fa-cloud-upload-alt"></i> Zapisz do Google Sheets</button>
+    <button onclick="location.reload()"><i class="fas fa-download"></i> Import danych z arkusza</button>
   </div>
 
   <table id="inventory-table">
@@ -98,7 +127,7 @@
       </tr>
     </thead>
     <tbody>
-      <!-- Wiersze będą dodawane dynamicznie -->
+      <!-- Dynamic rows -->
     </tbody>
   </table>
 
@@ -107,20 +136,19 @@
     const tableBody = document.querySelector('#inventory-table tbody');
 
     function getLocalData(key) {
-      const data = JSON.parse(localStorage.getItem(`item-${key}`)) || { qty: 0, updated: '' };
-      return data;
+      return JSON.parse(localStorage.getItem(`item-${key}`)) || { qty: 0, updated: '' };
     }
 
     function setLocalData(key, qty) {
       const now = new Date().toLocaleString();
-      localStorage.setItem(`item-${key}`, JSON.stringify({ qty: qty, updated: now }));
+      localStorage.setItem(`item-${key}`, JSON.stringify({ qty, updated: now }));
       document.getElementById(`update-${key}`).textContent = now;
     }
 
     fetch(sheetURL)
       .then(res => res.text())
       .then(csv => {
-        const rows = csv.split('\n').map(row => row.split(','));
+        const rows = csv.split('\n').map(r => r.split(','));
         for (let i = 1; i < rows.length; i++) {
           const [vendor, model, pn] = rows[i];
           if (!model) continue;
@@ -133,40 +161,36 @@
             <td>${vendor}</td>
             <td class="model">${model}</td>
             <td>${pn}</td>
-            <td>
-              <input type="number" class="qty-input" id="qty-${key}" value="${data.qty}" min="0" onchange="onQtyChange('${key}')">
-            </td>
+            <td><input type="number" class="qty-input" id="qty-${key}" value="${data.qty}" min="0" onchange="onQtyChange('${key}')"></td>
             <td id="update-${key}">${data.updated}</td>
             <td>
               <button class="add" onclick="adjustQty('${key}', 1)">➕</button>
               <button class="remove" onclick="adjustQty('${key}', -1)">➖</button>
-            </td>
-          `;
+            </td>`;
           tableBody.appendChild(tr);
         }
       });
 
     function adjustQty(key, change) {
       const input = document.getElementById(`qty-${key}`);
-      let current = parseInt(input.value) || 0;
-      current = Math.max(0, current + change);
-      input.value = current;
-      setLocalData(key, current);
+      let val = parseInt(input.value) || 0;
+      val = Math.max(0, val + change);
+      input.value = val;
+      setLocalData(key, val);
     }
 
     function onQtyChange(key) {
-      const input = document.getElementById(`qty-${key}`);
-      setLocalData(key, parseInt(input.value) || 0);
+      const val = parseInt(document.getElementById(`qty-${key}`).value) || 0;
+      setLocalData(key, val);
     }
 
     document.getElementById('search').addEventListener('input', function () {
-      const filter = this.value.toLowerCase();
-      const rows = tableBody.getElementsByTagName('tr');
-      for (let row of rows) {
-        const modelCell = row.querySelector('.model');
-        const modelText = modelCell.textContent.toLowerCase();
-        row.style.display = modelText.includes(filter) ? '' : 'none';
-      }
+      const val = this.value.toLowerCase();
+      const rows = tableBody.querySelectorAll('tr');
+      rows.forEach(row => {
+        const model = row.querySelector('.model').textContent.toLowerCase();
+        row.style.display = model.includes(val) ? '' : 'none';
+      });
     });
 
     function exportToExcel() {
@@ -175,12 +199,12 @@
       const rows = document.querySelectorAll('#inventory-table tbody tr');
 
       rows.forEach(row => {
-        const cells = row.querySelectorAll('td');
-        const vendor = cells[0].innerText;
-        const model = cells[1].innerText;
-        const pn = cells[2].innerText;
-        const qty = cells[3].querySelector('input').value;
-        const updated = cells[4].textContent;
+        const tds = row.querySelectorAll('td');
+        const vendor = tds[0].innerText;
+        const model = tds[1].innerText;
+        const pn = tds[2].innerText;
+        const qty = tds[3].querySelector('input').value;
+        const updated = tds[4].textContent;
         ws_data.push([vendor, model, pn, qty, updated]);
       });
 
@@ -201,28 +225,27 @@
     }
 
     function saveToSheet() {
-  const rows = document.querySelectorAll('#inventory-table tbody tr');
-  const data = [];
+      const rows = document.querySelectorAll('#inventory-table tbody tr');
+      const data = [];
+      rows.forEach(row => {
+        const cells = row.querySelectorAll('td');
+        const vendor = cells[0].innerText;
+        const model = cells[1].innerText;
+        const pn = cells[2].innerText;
+        const qty = cells[3].querySelector('input').value;
+        const updated = cells[4].textContent;
+        data.push({ vendor, model, pn, qty, updated });
+      });
 
-  rows.forEach(row => {
-    const cells = row.querySelectorAll('td');
-    const vendor = cells[0].innerText;
-    const model = cells[1].innerText;
-    const pn = cells[2].innerText;
-    const qty = cells[3].querySelector('input').value;
-    const updated = cells[4].textContent;
-    data.push({ vendor, model, pn, qty, updated });
-  });
-
-  fetch("https://script.google.com/macros/s/AKfycbws4kVUCNT9xWQcRCvOlecsXR7-Alt39nMDYMh1iQHWcRMrXM1pwAErKd7Y4_PdOdEs/exec", {
-    method: "POST",
-    body: JSON.stringify(data),
-    headers: { "Content-Type": "application/json" }
-  })
-  .then(res => res.text())
-  .then(msg => alert("✅ Zapisano dane do Google Sheets."))
-  .catch(err => alert("❌ Błąd podczas zapisu: " + err));
-}
+      fetch("https://script.google.com/macros/s/AKfycbws4kVUCNT9xWQcRCvOlecsXR7-Alt39nMDYMh1iQHWcRMrXM1pwAErKd7Y4_PdOdEs/exec", {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: { "Content-Type": "application/json" }
+      })
+      .then(res => res.text())
+      .then(msg => alert("✅ Zapisano dane do Google Sheets."))
+      .catch(err => alert("❌ Błąd podczas zapisu: " + err));
+    }
   </script>
 </body>
 </html>
