@@ -41,6 +41,7 @@
       border: none;
       border-radius: 6px;
       cursor: pointer;
+      margin-left: 10px;
     }
     table {
       width: 90%;
@@ -78,7 +79,10 @@
 
   <div class="toolbar">
     <input type="text" id="search" placeholder="Szukaj modelu...">
-    <button onclick="exportToExcel()">📤 Export do Excela</button>
+    <div>
+      <button onclick="exportToExcel()">📤 Export do Excela</button>
+      <button onclick="resetQuantities()">🔄 Reset ilości</button>
+    </div>
   </div>
 
   <table id="inventory-table">
@@ -88,6 +92,7 @@
         <th>MODEL</th>
         <th>PN</th>
         <th>ILOŚĆ</th>
+        <th>OSTATNIA ZMIANA</th>
         <th>AKCJE</th>
       </tr>
     </thead>
@@ -100,12 +105,15 @@
     const sheetURL = 'https://docs.google.com/spreadsheets/d/16ELRHLUGjbsyOmg4d22dRq2emS3YHEKEg2fLIkaBAYI/gviz/tq?tqx=out:csv&sheet=DANE%20DO%20STRONY';
     const tableBody = document.querySelector('#inventory-table tbody');
 
-    function getLocalQty(key) {
-      return localStorage.getItem(`qty-${key}`) || "0";
+    function getLocalData(key) {
+      const data = JSON.parse(localStorage.getItem(`item-${key}`)) || { qty: 0, updated: '' };
+      return data;
     }
 
-    function setLocalQty(key, value) {
-      localStorage.setItem(`qty-${key}`, value);
+    function setLocalData(key, qty) {
+      const now = new Date().toLocaleString();
+      localStorage.setItem(`item-${key}`, JSON.stringify({ qty: qty, updated: now }));
+      document.getElementById(`update-${key}`).textContent = now;
     }
 
     fetch(sheetURL)
@@ -116,9 +124,8 @@
           const [vendor, model, pn] = rows[i];
           if (!model) continue;
 
-          const itemKey = model.trim().replace(/\s+/g, '_') + '_' + i;
-          const quantityId = `qty-${itemKey}`;
-          const savedQty = getLocalQty(itemKey);
+          const key = model.trim().replace(/\s+/g, '_') + '_' + i;
+          const data = getLocalData(key);
 
           const tr = document.createElement('tr');
           tr.innerHTML = `
@@ -126,24 +133,29 @@
             <td class="model">${model}</td>
             <td>${pn}</td>
             <td>
-              <input type="number" class="qty-input" id="${quantityId}" value="${savedQty}" min="0" onchange="setLocalQty('${itemKey}', this.value)">
+              <input type="number" class="qty-input" id="qty-${key}" value="${data.qty}" min="0" onchange="onQtyChange('${key}')">
             </td>
+            <td id="update-${key}">${data.updated}</td>
             <td>
-              <button class="add" onclick="adjustQty('${quantityId}', '${itemKey}', 1)">➕</button>
-              <button class="remove" onclick="adjustQty('${quantityId}', '${itemKey}', -1)">➖</button>
+              <button class="add" onclick="adjustQty('${key}', 1)">➕</button>
+              <button class="remove" onclick="adjustQty('${key}', -1)">➖</button>
             </td>
           `;
           tableBody.appendChild(tr);
         }
       });
 
-    function adjustQty(id, key, change) {
-      const input = document.getElementById(id);
+    function adjustQty(key, change) {
+      const input = document.getElementById(`qty-${key}`);
       let current = parseInt(input.value) || 0;
-      current += change;
-      current = Math.max(0, current);
+      current = Math.max(0, current + change);
       input.value = current;
-      setLocalQty(key, current);
+      setLocalData(key, current);
+    }
+
+    function onQtyChange(key) {
+      const input = document.getElementById(`qty-${key}`);
+      setLocalData(key, parseInt(input.value) || 0);
     }
 
     document.getElementById('search').addEventListener('input', function () {
@@ -158,7 +170,7 @@
 
     function exportToExcel() {
       const wb = XLSX.utils.book_new();
-      const ws_data = [["VENDOR", "MODEL", "PN", "ILOŚĆ"]];
+      const ws_data = [["VENDOR", "MODEL", "PN", "ILOŚĆ", "OSTATNIA ZMIANA"]];
       const rows = document.querySelectorAll('#inventory-table tbody tr');
 
       rows.forEach(row => {
@@ -167,12 +179,24 @@
         const model = cells[1].innerText;
         const pn = cells[2].innerText;
         const qty = cells[3].querySelector('input').value;
-        ws_data.push([vendor, model, pn, qty]);
+        const updated = cells[4].textContent;
+        ws_data.push([vendor, model, pn, qty, updated]);
       });
 
       const ws = XLSX.utils.aoa_to_sheet(ws_data);
       XLSX.utils.book_append_sheet(wb, ws, "Inwentaryzacja");
-      XLSX.writeFile(wb, "OC_INWENTARYZACJA.xlsx");
+      XLSX.writeFile(wb, `OC_INWENTARYZACJA_${new Date().toISOString().slice(0,10)}.xlsx`);
+    }
+
+    function resetQuantities() {
+      if (!confirm("Na pewno chcesz wyzerować wszystkie ilości?")) return;
+      const rows = document.querySelectorAll('#inventory-table tbody tr');
+      rows.forEach(row => {
+        const input = row.querySelector('input.qty-input');
+        const key = input.id.replace('qty-', '');
+        input.value = 0;
+        setLocalData(key, 0);
+      });
     }
   </script>
 </body>
