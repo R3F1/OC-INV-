@@ -277,7 +277,7 @@ body.dark input, body.dark button {
               <button onclick="changeQty(${index}, -1)"><i class='fa fa-minus'></i></button>
               <button onclick="changeQty(${index}, 1)"><i class='fa fa-plus'></i></button>
               <input type="number" id="input-${index}" value="0" />
-              <button class="confirm-btn" onclick="setQty(${index})"><i class='fa fa-check'></i></button> <span style="font-size: 13px; color: #555;">wpisz wartość</span>
+              <button class="confirm-btn" onclick="confirmAndSet(${index})"><i class='fa fa-check'></i></button> <span style="font-size: 13px; color: #555;">wpisz wartość</span>
             </div>
           </td>`;
         tbody.appendChild(tr);
