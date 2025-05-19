@@ -282,8 +282,6 @@ body.dark input, body.dark button {
     }
 
     function changeQty(index, delta) {
-  modifyQty(index, delta);
-}
       const cell = document.getElementById(`qty-${index}`);
       let val = parseInt(cell.textContent);
       val = Math.max(0, val + delta);
@@ -401,45 +399,26 @@ document.getElementById("filter-zero").addEventListener("click", () => {
 });
 
 
-let pendingIndex = null;
-let proposedQty = null;
+let proposedQtyMap = {};
 
-function modifyQty(index, delta) {
-  const current = parseInt(document.getElementById(`qty-${index}`).textContent);
-  const newQty = current + delta;
-  if (newQty < 0) return;
-  proposedQty = newQty;
-  pendingIndex = index;
-  document.getElementById('confirm-message').textContent = `Czy na pewno chcesz zmienić ilość na ${newQty}?`;
-  document.getElementById('confirm-modal').style.display = 'flex';
+function changeQty(index, delta) {
+  if (!proposedQtyMap[index]) proposedQtyMap[index] = 0;
+  proposedQtyMap[index] += delta;
+  if (proposedQtyMap[index] < 0) proposedQtyMap[index] = 0;
+  document.getElementById(`proposed-${index}`).textContent = proposedQtyMap[index];
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("modal-yes").addEventListener("click", () => {
-    document.getElementById('confirm-modal').style.display = 'none';
-    document.getElementById(`qty-${pendingIndex}`).textContent = proposedQty;
-    document.getElementById(`input-${pendingIndex}`).value = proposedQty;
-    saveRow(pendingIndex, proposedQty);
-  });
-
-  document.getElementById("modal-no").addEventListener("click", () => {
-    document.getElementById('confirm-modal').style.display = 'none';
-    pendingIndex = null;
-    proposedQty = null;
-  });
-});
-</script>
+function setQty(index) {
+  const current = parseInt(document.getElementById(`qty-${index}`).textContent);
+  const add = proposedQtyMap[index] || 0;
+  const finalQty = current + add;
+  document.getElementById(`qty-${index}`).textContent = finalQty;
+  document.getElementById(`input-${index}`).value = finalQty;
+  proposedQtyMap[index] = 0;
+  document.getElementById(`proposed-${index}`).textContent = "0";
+  saveRow(index, finalQty);
+}</script>
 </div>
 <audio id="success-sound" preload="auto" src="https://www.soundjay.com/buttons/sounds/button-3.mp3"></audio>
-
-<div id="confirm-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:9999; align-items:center; justify-content:center;">
-<div style="background:white; padding:20px 30px; border-radius:12px; max-width:400px; width:90%; text-align:center; box-shadow: 0 0 20px rgba(0,0,0,0.3);">
-<p id="confirm-message" style="font-weight:bold; font-size:16px; color:#333;">Czy na pewno chcesz zmienić ilość na X?</p>
-<div style="margin-top:20px;">
-<button id="modal-yes" style="background:#4caf50; color:white; padding:8px 20px; border:none; border-radius:8px; margin-right:10px;">Tak</button>
-<button id="modal-no" style="background:#f44336; color:white; padding:8px 20px; border:none; border-radius:8px;">Anuluj</button>
-</div>
-</div>
-</div>
 </body>
 </html>
