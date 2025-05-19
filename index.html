@@ -214,62 +214,9 @@ body.dark input, body.dark button {
 .fa-shake {
   animation: fa-shake 1s infinite;
 }
-
-/* 🌌 Background animation */
-@keyframes backgroundShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-body {
-  animation: backgroundShift 30s ease infinite;
-  background-size: 200% 200% !important;
-}
-
-/* ✨ Modal fade-in */
-@keyframes fadeInModal {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-/* 📥 Row fade-in */
-@keyframes fadeInRow {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-tr {
-  animation: fadeInRow 0.3s ease-in-out;
-}
-
-@media screen and (max-width: 768px) {
-  table, th, td {
-    font-size: 13px;
-    padding: 6px;
-  }
-  .qty-controls {
-    flex-direction: column;
-    gap: 4px;
-  }
-  input[type="number"] {
-    width: 50px;
-  }
-  button {
-    font-size: 13px;
-    padding: 6px 10px;
-  }
-  #top-bar {
-    font-size: 13px;
-    padding: 4px 8px;
-  }
-}
 </style>
 </head>
-<body>
-<div id="top-bar" style="position:sticky; top:0; z-index:999; background:rgba(255,255,255,0.6); backdrop-filter:blur(4px); padding:6px 12px; width:100%; display:flex; justify-content:space-between; align-items:center; font-size:14px; font-weight:bold;">
-<span id="current-date">📅</span>
-<span id="current-time">🕒</span>
-</div>
-<button id="theme-toggle" style="position: fixed; top: 20px; right: 20px; z-index: 1000; background: #1565c0; color: white; border: none; padding: 10px; border-radius: 50%; font-size: 20px; cursor: pointer;">🌙</button>
+<body><button id="theme-toggle" style="position: fixed; top: 20px; right: 20px; z-index: 1000; background: #1565c0; color: white; border: none; padding: 10px; border-radius: 50%; font-size: 20px; cursor: pointer;">🌙</button>
 <div class="overlay">
 <div id="alert-banner" style="display:none; background-color:#ffcdd2; color:#b71c1c; font-weight:bold; padding:6px 12px; border-radius: 12px; margin-bottom: 20px; display: inline-flex; align-items: center; gap: 8px; font-size: 14px; justify-content: center; box-shadow: 0 4px 12px rgba(183, 28, 28, 0.4);">
 <i class="fa fa-bell fa-shake" style="font-size: 14px;"></i>
@@ -299,23 +246,14 @@ tr {
     const apiUrl = "https://wispy-waterfall-e267.lukaszarmiajotpe.workers.dev/";
     let currentData = [];
 
-    async 
-async function loadData() {
-  console.log("[debug] wywołano loadData()");
-  document.getElementById("debug-log").textContent = "[debug] ładowanie danych...";
-  try {
-    const res = await fetch(apiUrl);
-    const json = await res.json();
-    console.log("[debug] dane:", json);
-    document.getElementById("debug-log").textContent = "[debug] załadowano dane: " + json.length + " wierszy";
-    currentData = json;
-    renderTable(json);
-  } catch (err) {
-    console.error("[debug] błąd fetch():", err);
-    document.getElementById("debug-log").textContent = "[debug] BŁĄD: " + err.message;
-  }
-}
-function renderTable(data) {
+    async function loadData() {
+      const res = await fetch(apiUrl);
+      const json = await res.json();
+      currentData = json;
+      renderTable(json);
+    }
+
+    function renderTable(data) {
       const tbody = document.querySelector("#data-table tbody");
       tbody.innerHTML = "";
 
@@ -360,9 +298,8 @@ function renderTable(data) {
       saveRow(index, val);
     }
 
-    function saveRow(index, newQty) {
-  confirmSave(index, newQty);
-}
+    async function saveRow(index, newQty) {
+  if (!confirm('Czy na pewno chcesz zatwierdzić tę zmianę?')) return;
       const row = currentData[index];
       const updated = [{
         VENDOR: row["VENDOR"],
@@ -461,74 +398,8 @@ document.getElementById("filter-zero").addEventListener("click", () => {
   renderTable(filtered);
   document.getElementById("filter-zero").textContent = zeroFilterActive ? "↩️ Pokaż wszystkie" : "🔍 Pokaż tylko zerowe";
 });
-
-
-let pendingIndex = null;
-let pendingQty = null;
-
-function confirmSave(index, newQty) {
-  pendingIndex = index;
-  pendingQty = newQty;
-  document.getElementById("confirm-modal").style.display = "flex";
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("modal-yes").addEventListener("click", () => {
-    document.getElementById("confirm-modal").style.display = "none";
-    actuallySaveRow(pendingIndex, pendingQty);
-  });
-
-  document.getElementById("modal-no").addEventListener("click", () => {
-    document.getElementById("confirm-modal").style.display = "none";
-    pendingIndex = null;
-    pendingQty = null;
-  });
-});
-
-function actuallySaveRow(index, newQty) {
-  const row = currentData[index];
-  const updated = [{
-    VENDOR: row["VENDOR"],
-    MODEL: row["MODEL"],
-    PN: row["PN"],
-    ILOŚĆ: newQty,
-    updated: new Date().toLocaleString()
-  }];
-  fetch(apiUrl, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(updated)
-  }).then(() => {
-    showToast();
-    document.getElementById('success-sound').play();
-    highlightRow(index);
-  }).catch(err => {
-    console.error("Błąd zapisu:", err);
-  });
-}
-
-// ⏰ Live Clock and Date
-function updateClock() {
-  const now = new Date();
-  document.getElementById("current-time").textContent = "🕒 " + now.toLocaleTimeString();
-  document.getElementById("current-date").textContent = "📅 " + now.toLocaleDateString();
-}
-setInterval(updateClock, 1000);
-updateClock();
 </script>
 </div>
 <audio id="success-sound" preload="auto" src="https://www.soundjay.com/buttons/sounds/button-3.mp3"></audio>
-<div id="confirm-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:2000; align-items:center; justify-content:center;">
-<div style="background:white; padding:20px 30px; border-radius:12px; max-width:400px; width:90%; text-align:center; box-shadow: 0 0 20px rgba(0,0,0,0.3); animation: fadeInModal 0.4s ease;">
-<p style="font-weight:bold; font-size:16px; color:#333;">Czy na pewno chcesz zatwierdzić tę zmianę?</p>
-<div style="margin-top:20px;">
-<button id="modal-yes" style="background:#4caf50; color:white; padding:8px 20px; border:none; border-radius:8px; margin-right:10px;">Tak</button>
-<button id="modal-no" style="background:#f44336; color:white; padding:8px 20px; border:none; border-radius:8px;">Anuluj</button>
-</div>
-</div>
-</div>
-<div id="debug-log" style="position:fixed; bottom:0; left:0; width:100%; background:black; color:lime; font-family:monospace; font-size:12px; padding:4px; z-index:9999;">
-  [debug] czekam na dane...
-</div>
 </body>
 </html>
