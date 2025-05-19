@@ -299,6 +299,7 @@ body.dark input, body.dark button {
     }
 
     async function saveRow(index, newQty) {
+  if (!confirm('Czy na pewno chcesz zatwierdzić tę zmianę?')) return;
       const row = currentData[index];
       const updated = [{
         VENDOR: row["VENDOR"],
