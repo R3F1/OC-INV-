@@ -201,10 +201,27 @@ body.dark input, body.dark button {
 
 .qty-controls button:nth-child(1) { background-color: #e53935 !important; }
 .qty-controls button:nth-child(2) { background-color: #43a047 !important; }
+
+/* Font Awesome FA Bell animation fallback */
+@keyframes fa-shake {
+  0% { transform: rotate(0deg); }
+  25% { transform: rotate(15deg); }
+  50% { transform: rotate(-15deg); }
+  75% { transform: rotate(10deg); }
+  100% { transform: rotate(0deg); }
+}
+.fa-shake {
+  animation: fa-shake 1s infinite;
+}
 </style>
 </head>
 <body><button id="theme-toggle" style="position: fixed; top: 20px; right: 20px; z-index: 1000; background: #1565c0; color: white; border: none; padding: 10px; border-radius: 50%; font-size: 20px; cursor: pointer;">🌙</button>
 <div class="overlay">
+<div id="alert-banner" style="display:none; background-color:#ffcdd2; color:#b71c1c; font-weight:bold; padding:12px 20px; border-radius: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+<i class="fa fa-bell fa-shake" style="font-size: 18px;"></i>
+<span id="alert-text">Alert</span>
+</div>
+
 <img alt="LCDR Logo" src="logoinv.png" style="max-width: 240px; margin-bottom: 20px; filter: drop-shadow(0 0 10px rgba(0,0,0,0.5));"/><h1>OC INWENTARYZACJA</h1><h2 id="slogan" style="margin-top: -10px; font-weight: 400; color: #b0bec5;">Zawsze aktualne dane</h2>
 <input id="search" oninput="filterTable()" placeholder="🔍 Filtruj po MODEL lub PN..." type="text"/><button id="export-csv" style="margin: 10px; padding: 10px 20px; background: #1e88e5; color: white; border: none; border-radius: 12px; cursor: pointer;">⬇️ Eksportuj do CSV</button>
 <button class="refresh-btn" onclick="loadData()">🔄 Odśwież dane</button>
@@ -320,7 +337,20 @@ body.dark input, body.dark button {
     function updateSummary(data) {
       const total = data.reduce((sum, row) => sum + (parseInt(row["ILOŚĆ"]) || 0), 0);
       const uniqueModels = new Set(data.map(row => row["MODEL"])).size;
-      document.getElementById("summary").textContent = `📦 Razem sztuk: ${total} | Unikalnych modeli: ${uniqueModels}`;
+      
+  // 🔔 Alert system for items with 0 stock
+  const zeroItems = data.filter(row => parseInt(row["ILOŚĆ"]) === 0);
+  const banner = document.getElementById("alert-banner");
+  const alertText = document.getElementById("alert-text");
+
+  if (zeroItems.length > 0) {
+    banner.style.display = "flex";
+    alertText.textContent = `🚨 ${zeroItems.length} pozycji ma ILOŚĆ = 0!`;
+  } else {
+    banner.style.display = "none";
+  }
+
+  document.getElementById("summary").textContent = `📦 Razem sztuk: ${total} | Unikalnych modeli: ${uniqueModels}`;
     }
 
     loadData();
