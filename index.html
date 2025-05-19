@@ -299,12 +299,23 @@ tr {
     const apiUrl = "https://wispy-waterfall-e267.lukaszarmiajotpe.workers.dev/";
     let currentData = [];
 
-    async function loadData() {
-      const res = await fetch(apiUrl);
-      const json = await res.json();
-      currentData = json;
-      renderTable(json);
-    }
+    async 
+async function loadData() {
+  console.log("[debug] wywołano loadData()");
+  document.getElementById("debug-log").textContent = "[debug] ładowanie danych...";
+  try {
+    const res = await fetch(apiUrl);
+    const json = await res.json();
+    console.log("[debug] dane:", json);
+    document.getElementById("debug-log").textContent = "[debug] załadowano dane: " + json.length + " wierszy";
+    currentData = json;
+    renderTable(json);
+  } catch (err) {
+    console.error("[debug] błąd fetch():", err);
+    document.getElementById("debug-log").textContent = "[debug] BŁĄD: " + err.message;
+  }
+}
+
 
     function renderTable(data) {
       const tbody = document.querySelector("#data-table tbody");
@@ -517,6 +528,10 @@ updateClock();
 <button id="modal-no" style="background:#f44336; color:white; padding:8px 20px; border:none; border-radius:8px;">Anuluj</button>
 </div>
 </div>
+</div>
+
+<div id="debug-log" style="position:fixed; bottom:0; left:0; width:100%; background:black; color:lime; font-family:monospace; font-size:12px; padding:4px; z-index:9999;">
+  [debug] czekam na dane...
 </div>
 </body>
 </html>
