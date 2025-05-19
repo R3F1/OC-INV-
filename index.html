@@ -299,10 +299,13 @@ body.dark input, body.dark button {
 
 function setQty(index) {
   const input = document.getElementById(`input-${index}`);
-  let newVal = parseInt(input.value);
-  if (isNaN(newVal)) newVal = 0;
-  document.getElementById(`qty-${index}`).textContent = newVal;
-  saveRow(index, newVal);
+  const delta = parseInt(input.value);
+  if (isNaN(delta)) return;
+  const qtyEl = document.getElementById(`qty-${index}`);
+  const currentQty = parseInt(qtyEl.textContent);
+  const newQty = Math.max(0, currentQty + delta);
+  qtyEl.textContent = newQty;
+  saveRow(index, newQty);
   input.value = 0;
 }
 
