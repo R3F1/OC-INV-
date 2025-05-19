@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8" />
-  <title>Formularz OC - GitHub Pages z Proxy</title>
+  <title>Formularz OC - Zapis do Google Sheets (Proxy)</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -71,7 +71,7 @@
       }];
 
       try {
-        const res = await fetch("https://script.google.com/macros/s/AKfycbzhI5e83rOtriHMxBbK2UAKTKZaHvCWQPJ4eh3Tr4aGQNyBKn0ByVVF_o5KL2YR2c-B/exec", {
+        const res = await fetch("https://wispy-waterfall-e267.lukaszarmiajotpe.workers.dev/", {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
