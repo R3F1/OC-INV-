@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="pl">
+<!DOCTYPE html><html lang="pl">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -88,15 +87,11 @@
   <header>
     <img src="https://img.icons8.com/emoji/48/toolbox-emoji.png" alt="logo">
     <h1>OC INWENTARYZACJA</h1>
-  </header>
-
-  <div class="controls">
+  </header>  <div class="controls">
     <button onclick="loadData()"><i class="fa-solid fa-rotate"></i> Pobierz dane</button>
     <button id="export"><i class="fa-solid fa-file-csv"></i> Eksport do CSV</button>
     <button id="save"><i class="fa-solid fa-floppy-disk"></i> Zapisz zmiany</button>
-  </div>
-
-  <table id="data-table">
+  </div>  <table id="data-table">
     <thead>
       <tr>
         <th>Vendor</th>
@@ -107,9 +102,7 @@
       </tr>
     </thead>
     <tbody></tbody>
-  </table>
-
-  <script>
+  </table>  <script>
     const apiUrl = "https://wispy-waterfall-e267.lukaszarmiajotpe.workers.dev/";
     let currentData = [];
 
@@ -188,6 +181,5 @@
 
     // Auto załaduj dane na start
     loadData();
-  </script>
-</body>
+  </script></body>
 </html>
