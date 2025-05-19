@@ -298,7 +298,9 @@ body.dark input, body.dark button {
       saveRow(index, val);
     }
 
-    async function saveRow(index, newQty) {
+    function saveRow(index, newQty) {
+  confirmSave(index, newQty);
+}
   if (!confirm('Czy na pewno chcesz zatwierdzić tę zmianę?')) return;
       const row = currentData[index];
       const updated = [{
@@ -398,8 +400,61 @@ document.getElementById("filter-zero").addEventListener("click", () => {
   renderTable(filtered);
   document.getElementById("filter-zero").textContent = zeroFilterActive ? "↩️ Pokaż wszystkie" : "🔍 Pokaż tylko zerowe";
 });
+
+
+let pendingIndex = null;
+let pendingQty = null;
+
+function confirmSave(index, newQty) {
+  pendingIndex = index;
+  pendingQty = newQty;
+  document.getElementById("confirm-modal").style.display = "flex";
+}
+
+document.getElementById("modal-yes").addEventListener("click", () => {
+  document.getElementById("confirm-modal").style.display = "none";
+  actuallySaveRow(pendingIndex, pendingQty);
+});
+
+document.getElementById("modal-no").addEventListener("click", () => {
+  document.getElementById("confirm-modal").style.display = "none";
+  pendingIndex = null;
+  pendingQty = null;
+});
+
+function actuallySaveRow(index, newQty) {
+  const row = currentData[index];
+  const updated = [{
+    VENDOR: row["VENDOR"],
+    MODEL: row["MODEL"],
+    PN: row["PN"],
+    ILOŚĆ: newQty,
+    updated: new Date().toLocaleString()
+  }];
+  fetch(apiUrl, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(updated)
+  }).then(() => {
+    showToast();
+    document.getElementById('success-sound').play();
+    highlightRow(index);
+  }).catch(err => {
+    console.error("Błąd zapisu:", err);
+  });
+}
 </script>
 </div>
 <audio id="success-sound" preload="auto" src="https://www.soundjay.com/buttons/sounds/button-3.mp3"></audio>
+
+<div id="confirm-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:2000; align-items:center; justify-content:center;">
+<div style="background:white; padding:20px 30px; border-radius:12px; max-width:400px; width:90%; text-align:center; box-shadow: 0 0 20px rgba(0,0,0,0.3);">
+<p style="font-weight:bold; font-size:16px; color:#333;">Czy na pewno chcesz zatwierdzić tę zmianę?</p>
+<div style="margin-top:20px;">
+<button id="modal-yes" style="background:#4caf50; color:white; padding:8px 20px; border:none; border-radius:8px; margin-right:10px;">Tak</button>
+<button id="modal-no" style="background:#f44336; color:white; padding:8px 20px; border:none; border-radius:8px;">Anuluj</button>
+</div>
+</div>
+</div>
 </body>
 </html>
