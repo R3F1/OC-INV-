@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pl">
 <head>
@@ -28,6 +29,16 @@
       border: 1px solid #ccc;
       width: 100%;
       max-width: 300px;
+    }
+    button.refresh-btn {
+      margin: 20px;
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: none;
+      background: #388e3c;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
     }
     table {
       border-collapse: collapse;
@@ -126,6 +137,7 @@
 <body>
   <h1>OC INWENTARYZACJA</h1>
   <input type="text" id="search" placeholder="🔍 Filtruj po MODEL lub PN..." oninput="filterTable()">
+  <button class="refresh-btn" onclick="loadData()">🔄 Odśwież dane</button>
   <table id="data-table">
     <thead>
       <tr>
@@ -138,6 +150,7 @@
     </thead>
     <tbody></tbody>
   </table>
+  <div id="summary" style="margin-top: 20px; font-weight: bold; color: #2e7d32;"></div>
   <div id="toast">✅ Zapisano zmiany</div>
 
   <script>
@@ -175,6 +188,8 @@
           </td>`;
         tbody.appendChild(tr);
       });
+
+      updateSummary(data);
     }
 
     function changeQty(index, delta) {
@@ -230,6 +245,12 @@
       setTimeout(() => {
         toast.className = toast.className.replace("show", "");
       }, 2500);
+    }
+
+    function updateSummary(data) {
+      const total = data.reduce((sum, row) => sum + (parseInt(row["ILOŚĆ"]) || 0), 0);
+      const uniqueModels = new Set(data.map(row => row["MODEL"])).size;
+      document.getElementById("summary").textContent = `📦 Razem sztuk: ${total} | Unikalnych modeli: ${uniqueModels}`;
     }
 
     loadData();
