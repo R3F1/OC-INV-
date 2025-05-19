@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>OC INWENTARYZACJA</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://apis.google.com/js/api.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -23,8 +24,9 @@
       width: 90%;
       margin: 20px auto;
       display: flex;
-      justify-content: space-between;
-      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
     }
     .toolbar input {
       padding: 10px;
@@ -41,7 +43,6 @@
       border: none;
       border-radius: 6px;
       cursor: pointer;
-      margin-left: 10px;
     }
     table {
       width: 90%;
@@ -79,10 +80,10 @@
 
   <div class="toolbar">
     <input type="text" id="search" placeholder="Szukaj modelu...">
-    <div>
-      <button onclick="exportToExcel()">📤 Export do Excela</button>
-      <button onclick="resetQuantities()">🔄 Reset ilości</button>
-    </div>
+    <button onclick="exportToExcel()">📤 Export do Excela</button>
+    <button onclick="resetQuantities()">🔄 Reset ilości</button>
+    <button onclick="saveToSheet()">💾 Zapisz do Google Sheets</button>
+    <button onclick="location.reload()">📥 Import danych z arkusza</button>
   </div>
 
   <table id="inventory-table">
@@ -197,6 +198,10 @@
         input.value = 0;
         setLocalData(key, 0);
       });
+    }
+
+    function saveToSheet() {
+      alert("🔐 Aby zapisać dane do Google Sheets, należy zintegrować stronę z Apps Script lub Backend API (np. z użyciem Firebase lub Google OAuth). Na razie działa zapis lokalny i eksport do Excela.");
     }
   </script>
 </body>
