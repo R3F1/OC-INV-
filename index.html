@@ -201,8 +201,28 @@
     }
 
     function saveToSheet() {
-      alert("🔐 Aby zapisać dane do Google Sheets, należy zintegrować stronę z Apps Script lub Backend API (np. z użyciem Firebase lub Google OAuth). Na razie działa zapis lokalny i eksport do Excela.");
-    }
+  const rows = document.querySelectorAll('#inventory-table tbody tr');
+  const data = [];
+
+  rows.forEach(row => {
+    const cells = row.querySelectorAll('td');
+    const vendor = cells[0].innerText;
+    const model = cells[1].innerText;
+    const pn = cells[2].innerText;
+    const qty = cells[3].querySelector('input').value;
+    const updated = cells[4].textContent;
+    data.push({ vendor, model, pn, qty, updated });
+  });
+
+  fetch("https://script.google.com/macros/s/AKfycbwYiISNUBqXMKosuc4n0tzlG-pT4qz-_eaV6Elb1ei_0meiIcS3B-Tg9NKthkMQ3N_Q/exec", {
+    method: "POST",
+    body: JSON.stringify(data),
+    headers: { "Content-Type": "application/json" }
+  })
+  .then(res => res.text())
+  .then(msg => alert("✅ Zapisano dane do Google Sheets."))
+  .catch(err => alert("❌ Błąd podczas zapisu: " + err));
+}
   </script>
 </body>
 </html>
