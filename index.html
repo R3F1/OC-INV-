@@ -277,7 +277,7 @@ body.dark input, body.dark button {
               <button onclick="changeQty(${index}, -1)"><i class='fa fa-minus'></i></button>
               <button onclick="changeQty(${index}, 1)"><i class='fa fa-plus'></i></button>
               <input type="number" id="input-${index}" value="0" />
-              <button class="confirm-btn hidden" onclick="setQty(${index})"><i class='fa fa-check'></i></button>
+              <button class="confirm-btn" onclick="setQty(${index})"><i class='fa fa-check'></i></button>
             </div>
           </td>`;
         tbody.appendChild(tr);
@@ -286,14 +286,15 @@ body.dark input, body.dark button {
       updateSummary(data);
     }
 
-    function changeQty(index, delta) {
-      const cell = document.getElementById(`qty-${index}`);
-      let val = parseInt(cell.textContent);
-      val = Math.max(0, val + delta);
-      cell.textContent = val;
-      document.getElementById(`input-${index}`).value = val;
-      saveRow(index, val);
-    }
+    
+function changeQty(index, delta) {
+  const input = document.getElementById(`input-${index}`);
+  let val = parseInt(input.value);
+  if (isNaN(val)) val = 0;
+  val += delta;
+  input.value = val;
+}
+
 
     
 function setQty(index) {
@@ -368,15 +369,6 @@ function setQty(index) {
     }
 
     
-function toggleConfirm(index) {
-  const input = document.getElementById(`input-${index}`);
-  const button = input.parentElement.querySelector(".confirm-btn");
-  const val = parseInt(input.value);
-  if (!isNaN(val) && val !== 0) {
-    button.classList.remove("hidden");
-  } else {
-    button.classList.add("hidden");
-  }
 }
 
 loadData();
