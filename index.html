@@ -1,90 +1,67 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-  <meta charset="UTF-8">
-  <title>Dodaj dane do arkusza Google</title>
+  <meta charset="UTF-8" />
+  <title>Formularz OC - GitHub Pages z Proxy</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: linear-gradient(to right, #e0f7fa, #e1f5fe);
-      margin: 0;
+      background: #f1f8e9;
       padding: 40px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      max-width: 600px;
+      margin: auto;
     }
-    h1 {
-      color: #00796b;
+    h2 {
+      color: #33691e;
     }
     form {
-      background: #ffffff;
-      padding: 30px;
+      background: #fff;
+      padding: 20px;
       border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      width: 100%;
-      max-width: 400px;
-    }
-    label {
-      display: block;
-      margin-top: 15px;
-      font-weight: bold;
+      box-shadow: 0 0 12px rgba(0,0,0,0.1);
     }
     input {
       width: 100%;
       padding: 10px;
-      margin-top: 5px;
+      margin: 10px 0;
+      border-radius: 5px;
       border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 16px;
     }
     button {
-      margin-top: 20px;
-      padding: 10px 20px;
-      font-size: 16px;
-      background-color: #00796b;
+      width: 100%;
+      padding: 12px;
+      background-color: #558b2f;
       color: white;
+      font-size: 16px;
       border: none;
-      border-radius: 6px;
+      border-radius: 5px;
       cursor: pointer;
     }
-    .success {
+    #msg {
       margin-top: 20px;
-      color: green;
-    }
-    .error {
-      margin-top: 20px;
-      color: red;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
-  <h1>Dodaj dane do arkusza Google</h1>
-  <form id="dataForm">
-    <label for="vendor">Vendor:</label>
-    <input type="text" id="vendor" name="vendor" required>
-
-    <label for="model">Model:</label>
-    <input type="text" id="model" name="model" required>
-
-    <label for="pn">PN:</label>
-    <input type="text" id="pn" name="pn" required>
-
-    <label for="qty">Ilość:</label>
-    <input type="number" id="qty" name="qty" required min="0">
-
-    <button type="submit">📤 Wyślij dane</button>
-    <div id="response" class="success" style="display:none;"></div>
+  <h2>Dodaj dane do arkusza OC</h2>
+  <form id="form">
+    <input name="vendor" placeholder="Vendor" required>
+    <input name="model" placeholder="Model" required>
+    <input name="pn" placeholder="PN" required>
+    <input name="qty" placeholder="Ilość" type="number" required>
+    <button type="submit">📤 Wyślij</button>
   </form>
+  <div id="msg"></div>
 
   <script>
-    const form = document.getElementById('dataForm');
-    const responseBox = document.getElementById('response');
+    const form = document.getElementById('form');
+    const msg = document.getElementById('msg');
 
-    form.addEventListener('submit', function(e) {
+    form.addEventListener('submit', async e => {
       e.preventDefault();
 
       const now = new Date().toLocaleString();
-
       const data = [{
         vendor: form.vendor.value,
         model: form.model.value,
@@ -93,23 +70,22 @@
         updated: now
       }];
 
-      fetch("https://script.google.com/macros/s/AKfycbx63ZWnJZ3IYX2Jw0F80tlp-uy-r0SQPue3bW0-SeXM4cJP6kTicw5HgLWWH2OkH-ng/exec", {
-        method: "POST",
-        body: JSON.stringify(data),
-        headers: { "Content-Type": "application/json" }
-      })
-      .then(res => res.text())
-      .then(msg => {
-        responseBox.textContent = "✅ Dane zostały zapisane.";
-        responseBox.className = "success";
-        responseBox.style.display = "block";
+      try {
+        const res = await fetch("https://script.google.com/macros/s/AKfycbzhI5e83rOtriHMxBbK2UAKTKZaHvCWQPJ4eh3Tr4aGQNyBKn0ByVVF_o5KL2YR2c-B/exec", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(data)
+        });
+        const txt = await res.text();
+        msg.textContent = txt;
+        msg.style.color = "green";
         form.reset();
-      })
-      .catch(err => {
-        responseBox.textContent = "❌ Błąd: " + err;
-        responseBox.className = "error";
-        responseBox.style.display = "block";
-      });
+      } catch (err) {
+        msg.textContent = "❌ Błąd: " + err.message;
+        msg.style.color = "red";
+      }
     });
   </script>
 </body>
