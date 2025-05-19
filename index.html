@@ -1,49 +1,24 @@
 <!DOCTYPE html><html lang="pl">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>OC Inwentaryzacja</title>
+  <title>Inwentaryzacja OC</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body {
       font-family: 'Montserrat', sans-serif;
-      background: linear-gradient(to right, #c9f0ff, #e8f5e9);
+      background: linear-gradient(to right, #e0f7fa, #e8f5e9);
       margin: 0;
       padding: 40px 20px;
       display: flex;
       flex-direction: column;
       align-items: center;
     }
-    header {
-      text-align: center;
-      margin-bottom: 30px;
-    }
-    header img {
-      width: 60px;
-    }
-    header h1 {
-      font-size: 28px;
+    h1 {
       color: #2e7d32;
-      margin-top: 10px;
+      margin-bottom: 30px;
       text-shadow: 1px 1px #ccc;
-    }
-    .controls {
-      margin-bottom: 20px;
-    }
-    .controls button {
-      background-color: #2e7d32;
-      color: white;
-      border: none;
-      padding: 10px 16px;
-      margin: 0 5px;
-      border-radius: 8px;
-      font-size: 14px;
-      cursor: pointer;
-      transition: background-color 0.3s;
-    }
-    .controls button:hover {
-      background-color: #1b5e20;
     }
     table {
       border-collapse: collapse;
@@ -63,42 +38,48 @@
       background-color: #4caf50;
       color: white;
     }
-    td button {
+    .qty-controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .qty-controls button, .qty-controls input[type="number"] {
+      padding: 5px 8px;
+      font-size: 14px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+    .qty-controls button {
       background-color: #1976d2;
       color: white;
       border: none;
-      padding: 5px 10px;
-      border-radius: 4px;
-      margin: 0 2px;
       cursor: pointer;
     }
-    td button:hover {
+    .qty-controls button:hover {
       background-color: #0d47a1;
     }
-    @media screen and (max-width: 768px) {
-      table, .controls {
-        width: 100%;
-        font-size: 14px;
-      }
+    .qty-controls input[type="number"] {
+      width: 60px;
+      text-align: center;
+    }
+    .qty-controls .confirm-btn {
+      background-color: #388e3c;
+      color: white;
+      border: none;
     }
   </style>
 </head>
 <body>
-  <header>
-    <img src="https://img.icons8.com/emoji/48/toolbox-emoji.png" alt="logo">
-    <h1>OC INWENTARYZACJA</h1>
-  </header>  <div class="controls">
-    <button onclick="loadData()"><i class="fa-solid fa-rotate"></i> Pobierz dane</button>
-    <button id="export"><i class="fa-solid fa-file-csv"></i> Eksport do CSV</button>
-    <button id="save"><i class="fa-solid fa-floppy-disk"></i> Zapisz zmiany</button>
-  </div>  <table id="data-table">
+  <h1>OC INWENTARYZACJA</h1>
+  <table id="data-table">
     <thead>
       <tr>
         <th>Vendor</th>
         <th>Model</th>
         <th>PN</th>
         <th>Ilość</th>
-        <th>Edytuj</th>
+        <th>Edycja</th>
       </tr>
     </thead>
     <tbody></tbody>
@@ -112,74 +93,64 @@
       currentData = json;
       const tbody = document.querySelector("#data-table tbody");
       tbody.innerHTML = "";
+
       json.forEach((row, index) => {
         const tr = document.createElement("tr");
+        const qty = row["ILOŚĆ"] || 0;
         tr.innerHTML = `
           <td>${row["VENDOR"] || ""}</td>
           <td>${row["MODEL"] || ""}</td>
           <td>${row["PN"] || ""}</td>
-          <td id="qty-${index}">${row["ILOŚĆ"] || 0}</td>
+          <td id="qty-${index}">${qty}</td>
           <td>
-            <button onclick="changeQty(${index}, 1)"><i class='fa-solid fa-plus'></i></button>
-            <button onclick="changeQty(${index}, -1)"><i class='fa-solid fa-minus'></i></button>
+            <div class="qty-controls">
+              <button onclick="changeQty(${index}, -1)"><i class='fa fa-minus'></i></button>
+              <button onclick="changeQty(${index}, 1)"><i class='fa fa-plus'></i></button>
+              <input type="number" id="input-${index}" value="${qty}" />
+              <button class="confirm-btn" onclick="setQty(${index})"><i class='fa fa-check'></i></button>
+            </div>
           </td>`;
         tbody.appendChild(tr);
       });
     }
 
     function changeQty(index, delta) {
-      const qtyCell = document.getElementById(`qty-${index}`);
-      let current = parseInt(qtyCell.textContent);
-      current = Math.max(0, current + delta);
-      qtyCell.textContent = current;
+      const cell = document.getElementById(`qty-${index}`);
+      let val = parseInt(cell.textContent);
+      val = Math.max(0, val + delta);
+      cell.textContent = val;
+      document.getElementById(`input-${index}`).value = val;
+      saveRow(index, val);
     }
 
-    document.getElementById("export").addEventListener("click", () => {
-      const rows = document.querySelectorAll("#data-table tbody tr");
-      let csv = "Vendor,Model,PN,Ilość\n";
-      rows.forEach(row => {
-        const cells = row.querySelectorAll("td");
-        const data = Array.from(cells).slice(0, 4).map(td => td.textContent);
-        csv += data.join(",") + "\n";
-      });
-      const blob = new Blob([csv], { type: "text/csv" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "inwentaryzacja.csv";
-      a.click();
-      URL.revokeObjectURL(url);
-    });
+    function setQty(index) {
+      const input = document.getElementById(`input-${index}`);
+      let val = parseInt(input.value);
+      val = Math.max(0, isNaN(val) ? 0 : val);
+      document.getElementById(`qty-${index}`).textContent = val;
+      saveRow(index, val);
+    }
 
-    document.getElementById("save").addEventListener("click", async () => {
-      const rows = document.querySelectorAll("#data-table tbody tr");
-      const updated = [];
-      rows.forEach((row, index) => {
-        const cells = row.querySelectorAll("td");
-        updated.push({
-          VENDOR: cells[0].textContent,
-          MODEL: cells[1].textContent,
-          PN: cells[2].textContent,
-          ILOŚĆ: parseInt(cells[3].textContent),
-          updated: new Date().toLocaleString()
-        });
-      });
+    async function saveRow(index, newQty) {
+      const row = currentData[index];
+      const updated = [{
+        VENDOR: row["VENDOR"],
+        MODEL: row["MODEL"],
+        PN: row["PN"],
+        ILOŚĆ: newQty,
+        updated: new Date().toLocaleString()
+      }];
       try {
-        const res = await fetch(apiUrl, {
+        await fetch(apiUrl, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(updated)
         });
-        const text = await res.text();
-        alert("✅ Dane zapisane: " + text);
       } catch (err) {
-        alert("❌ Błąd zapisu: " + err);
+        console.error("Błąd zapisu:", err);
       }
-    });
+    }
 
-    // Auto załaduj dane na start
     loadData();
   </script></body>
 </html>
