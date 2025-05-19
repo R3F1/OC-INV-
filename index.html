@@ -1,13 +1,14 @@
 
 <!DOCTYPE html>
+
 <html lang="pl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Inwentaryzacja OC</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
-  <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Inwentaryzacja OC</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<style>
     body {
       background: url('background_darkened.jpg') no-repeat center center fixed;
       background-size: cover;
@@ -147,26 +148,25 @@
   </style>
 </head>
 <body>
-  <div class='overlay'>
-  <h1>OC INWENTARYZACJA</h1>
-  <input type="text" id="search" placeholder="🔍 Filtruj po MODEL lub PN..." oninput="filterTable()">
-  <button class="refresh-btn" onclick="loadData()">🔄 Odśwież dane</button>
-  <table id="data-table">
-    <thead>
-      <tr>
-        <th>Vendor</th>
-        <th>Model</th>
-        <th>PN</th>
-        <th>Ilość</th>
-        <th>Edycja</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-  <div id="summary" style="margin-top: 20px; font-weight: bold; color: #2e7d32;"></div>
-  <div id="toast">✅ Zapisano zmiany</div>
-
-  <script>
+<div class="overlay">
+<img alt="LCDR Logo" src="logoinv.png" style="max-width: 240px; margin-bottom: 20px; filter: drop-shadow(0 0 10px rgba(0,0,0,0.5));"/><h1>OC INWENTARYZACJA</h1>
+<input id="search" oninput="filterTable()" placeholder="🔍 Filtruj po MODEL lub PN..." type="text"/>
+<button class="refresh-btn" onclick="loadData()">🔄 Odśwież dane</button>
+<table id="data-table">
+<thead>
+<tr>
+<th>Vendor</th>
+<th>Model</th>
+<th>PN</th>
+<th>Ilość</th>
+<th>Edycja</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+<div id="summary" style="margin-top: 20px; font-weight: bold; color: #2e7d32;"></div>
+<div id="toast">✅ Zapisano zmiany</div>
+<script>
     const apiUrl = "https://wispy-waterfall-e267.lukaszarmiajotpe.workers.dev/";
     let currentData = [];
 
@@ -268,6 +268,6 @@
 
     loadData();
   </script>
-  </div>
+</div>
 </body>
 </html>
