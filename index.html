@@ -214,6 +214,23 @@ body.dark input, body.dark button {
 .fa-shake {
   animation: fa-shake 1s infinite;
 }
+
+/* Animacja podświetlenia dla zmiany proponowanej ilości */
+@keyframes pulse {
+  0% { background-color: #e3f2fd; }
+  50% { background-color: #bbdefb; }
+  100% { background-color: #e3f2fd; }
+}
+.proposed-box {
+  border: 1px solid #2196f3;
+  padding: 4px 8px;
+  margin-top: 4px;
+  border-radius: 6px;
+  background: #e3f2fd;
+}
+.pulse {
+  animation: pulse 0.6s ease;
+}
 </style>
 </head>
 <body><button id="theme-toggle" style="position: fixed; top: 20px; right: 20px; z-index: 1000; background: #1565c0; color: white; border: none; padding: 10px; border-radius: 50%; font-size: 20px; cursor: pointer;">🌙</button>
@@ -398,26 +415,29 @@ document.getElementById("filter-zero").addEventListener("click", () => {
   document.getElementById("filter-zero").textContent = zeroFilterActive ? "↩️ Pokaż wszystkie" : "🔍 Pokaż tylko zerowe";
 });
 
-
-let proposedQtyMap = {};
-
-function changeQty(index, delta) {
-  if (!proposedQtyMap[index]) proposedQtyMap[index] = 0;
-  proposedQtyMap[index] += delta;
-  if (proposedQtyMap[index] < 0) proposedQtyMap[index] = 0;
-  document.getElementById(`proposed-${index}`).textContent = proposedQtyMap[index];
+function resetQty(index) {
+  proposedQtyMap[index] = 0;
+  const el = document.getElementById(`proposed-${index}`);
+  if (el) el.textContent = "0";
 }
 
-function setQty(index) {
-  const current = parseInt(document.getElementById(`qty-${index}`).textContent);
-  const add = proposedQtyMap[index] || 0;
-  const finalQty = current + add;
-  document.getElementById(`qty-${index}`).textContent = finalQty;
-  document.getElementById(`input-${index}`).value = finalQty;
-  proposedQtyMap[index] = 0;
-  document.getElementById(`proposed-${index}`).textContent = "0";
-  saveRow(index, finalQty);
-}</script>
+function animateConfirmation(index) {
+  const row = document.getElementById(`row-${index}`);
+  if (!row) return;
+  row.style.transition = "background-color 0.8s ease";
+  row.style.backgroundColor = "#c8e6c9"; // light green
+  setTimeout(() => {
+    row.style.backgroundColor = "";
+  }, 1000);
+}
+
+// Hook into saveRow to animate
+const originalSaveRow = saveRow;
+saveRow = function(index, newQty) {
+  originalSaveRow(index, newQty);
+  animateConfirmation(index);
+}
+</script>
 </div>
 <audio id="success-sound" preload="auto" src="https://www.soundjay.com/buttons/sounds/button-3.mp3"></audio>
 </body>
