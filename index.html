@@ -2,100 +2,116 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8" />
-  <title>OC INWENTARYZACJA</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OC Inwentaryzacja</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(to bottom right, #e0f7fa, #e8f5e9);
+      font-family: 'Montserrat', sans-serif;
+      background: linear-gradient(to right, #c9f0ff, #e8f5e9);
       margin: 0;
-      padding: 40px;
+      padding: 40px 20px;
       display: flex;
       flex-direction: column;
       align-items: center;
     }
-    h1 {
+    header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    header img {
+      width: 60px;
+    }
+    header h1 {
+      font-size: 28px;
       color: #2e7d32;
+      margin-top: 10px;
+      text-shadow: 1px 1px #ccc;
+    }
+    .controls {
       margin-bottom: 20px;
     }
-    #pin-screen, #app {
-      display: none;
-      width: 100%;
-      max-width: 900px;
+    .controls button {
+      background-color: #2e7d32;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      margin: 0 5px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 0.3s;
     }
-    #pin-screen {
-      display: block;
+    .controls button:hover {
+      background-color: #1b5e20;
     }
     table {
       border-collapse: collapse;
       width: 100%;
+      max-width: 1000px;
       background-color: white;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      overflow: hidden;
     }
     th, td {
-      padding: 12px;
-      border: 1px solid #ddd;
+      padding: 14px;
+      border-bottom: 1px solid #ddd;
       text-align: center;
     }
-    button {
-      padding: 5px 10px;
-      margin: 5px;
-      font-size: 14px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    #export, #save {
-      margin-top: 20px;
-      padding: 10px 20px;
-      background-color: #388e3c;
+    th {
+      background-color: #4caf50;
       color: white;
     }
-    #save {
-      background-color: #1565c0;
+    td button {
+      background-color: #1976d2;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      margin: 0 2px;
+      cursor: pointer;
+    }
+    td button:hover {
+      background-color: #0d47a1;
+    }
+    @media screen and (max-width: 768px) {
+      table, .controls {
+        width: 100%;
+        font-size: 14px;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>OC INWENTARYZACJA</h1>
+  <header>
+    <img src="https://img.icons8.com/emoji/48/toolbox-emoji.png" alt="logo">
+    <h1>OC INWENTARYZACJA</h1>
+  </header>
 
-  <div id="pin-screen">
-    <p>🔒 Wprowadź PIN dostępu:</p>
-    <input type="password" id="pin-input" placeholder="PIN" />
-    <button onclick="checkPin()">✅ Zatwierdź</button>
+  <div class="controls">
+    <button onclick="loadData()"><i class="fa-solid fa-rotate"></i> Pobierz dane</button>
+    <button id="export"><i class="fa-solid fa-file-csv"></i> Eksport do CSV</button>
+    <button id="save"><i class="fa-solid fa-floppy-disk"></i> Zapisz zmiany</button>
   </div>
 
-  <div id="app">
-    <table id="data-table">
-      <thead>
-        <tr>
-          <th>Vendor</th>
-          <th>Model</th>
-          <th>PN</th>
-          <th>Ilość</th>
-          <th>Edytuj</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-    <button id="export">📤 Eksport do CSV</button>
-    <button id="save">💾 Zapisz zmiany</button>
-  </div>
+  <table id="data-table">
+    <thead>
+      <tr>
+        <th>Vendor</th>
+        <th>Model</th>
+        <th>PN</th>
+        <th>Ilość</th>
+        <th>Edytuj</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 
   <script>
-    const pin = "lcdr";
     const apiUrl = "https://wispy-waterfall-e267.lukaszarmiajotpe.workers.dev/";
     let currentData = [];
-
-    function checkPin() {
-      const input = document.getElementById('pin-input').value;
-      if (input === pin) {
-        document.getElementById('pin-screen').style.display = 'none';
-        document.getElementById('app').style.display = 'block';
-        loadData();
-      } else {
-        alert('❌ Błędny PIN');
-      }
-    }
 
     async function loadData() {
       const res = await fetch(apiUrl);
@@ -111,8 +127,8 @@
           <td>${row["PN"] || ""}</td>
           <td id="qty-${index}">${row["ILOŚĆ"] || 0}</td>
           <td>
-            <button onclick="changeQty(${index}, 1)">+</button>
-            <button onclick="changeQty(${index}, -1)">-</button>
+            <button onclick="changeQty(${index}, 1)"><i class='fa-solid fa-plus'></i></button>
+            <button onclick="changeQty(${index}, -1)"><i class='fa-solid fa-minus'></i></button>
           </td>`;
         tbody.appendChild(tr);
       });
@@ -169,6 +185,9 @@
         alert("❌ Błąd zapisu: " + err);
       }
     });
+
+    // Auto załaduj dane na start
+    loadData();
   </script>
 </body>
 </html>
