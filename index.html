@@ -1,41 +1,102 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <base target="_top">
-    <script>
-      function loadData() {
-        google.script.run.withSuccessHandler(function(data) {
-          var table = document.getElementById('data-table');
-          data.forEach(function(row, index) {
-            if(index === 0) return; // Pomijamy nagłówek
-            var tr = document.createElement('tr');
-            row.forEach(function(cell) {
-              var td = document.createElement('td');
-              td.textContent = cell;
-              tr.appendChild(td);
-            });
-            table.appendChild(tr);
-          });
-        }).getData();
-      }
-      window.onload = loadData;
-    </script>
-  </head>
-  <body>
-    <h1>Inwentaryzacja Części</h1>
-    <table border="1">
-      <thead>
-        <tr>
-          <th>MODEL</th>
-          <th>OPEN CELL</th>
-          <th>POBRANO</th>
-          <th>POBIERZ</th>
-          <th>ODŁÓŻ</th>
-          <th>POZOSTAŁO</th>
-          <th>VENDOR</th>
-        </tr>
-      </thead>
-      <tbody id="data-table"></tbody>
-    </table>
-  </body>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <title>OC INWENTARYZACJA</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom, #f0f4f8, #d9e2ec);
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background-color: #1a73e8;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      font-size: 32px;
+      font-weight: bold;
+    }
+    table {
+      width: 90%;
+      margin: 30px auto;
+      border-collapse: collapse;
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+      background-color: white;
+    }
+    th, td {
+      padding: 12px;
+      text-align: center;
+      border: 1px solid #ccc;
+    }
+    th {
+      background-color: #f1f1f1;
+    }
+    button {
+      padding: 6px 12px;
+      font-size: 16px;
+      cursor: pointer;
+      margin: 2px;
+    }
+    .add {
+      background-color: #4caf50;
+      color: white;
+    }
+    .remove {
+      background-color: #f44336;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <header>OC INWENTARYZACJA</header>
+
+  <table id="inventory-table">
+    <thead>
+      <tr>
+        <th>MODEL</th>
+        <th>OPEN CELL</th>
+        <th>PN</th>
+        <th>AKCJE</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Wiersze będą dodawane dynamicznie -->
+    </tbody>
+  </table>
+
+  <script>
+    const sheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQY8Ig67cQK39ZgmcZiTJDh9Rk__EWkkvgYnI6Oc6kWkRl-PAiIQoHphxBhCM2fMwGYtbqxxRYFT7l2/pub?output=csv';
+
+    fetch(sheetURL)
+      .then(res => res.text())
+      .then(csv => {
+        const rows = csv.split('\n').map(row => row.split(','));
+        const tbody = document.querySelector('#inventory-table tbody');
+
+        for (let i = 1; i < rows.length; i++) {
+          const [model, openCell, pn] = rows[i];
+          if (!model) continue;
+
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${model}</td>
+            <td>${openCell}</td>
+            <td>${pn}</td>
+            <td>
+              <button class="add" onclick="adjust('${model}', 1)">➕</button>
+              <button class="remove" onclick="adjust('${model}', -1)">➖</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        }
+      });
+
+    function adjust(model, change) {
+      alert(`Zmieniono stan dla modelu: ${model} o ${change > 0 ? 'dodanie' : 'usunięcie'} 1 szt.`);
+      // Tu można dodać zapis do localStorage lub integrację z Google Apps Script
+    }
+  </script>
+</body>
 </html>
