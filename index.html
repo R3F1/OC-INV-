@@ -382,55 +382,6 @@ document.getElementById('export-csv').addEventListener('click', () => {
   link.click();
 });
 
-
-let pendingIndex = null;
-let pendingQty = null;
-
-function confirmSave(index, newQty) {
-  pendingIndex = index;
-  pendingQty = newQty;
-  document.getElementById("confirm-modal").style.display = "flex";
-}
-
-function saveRow(index, newQty) {
-  confirmSave(index, newQty);
-}
-
-function actuallySaveRow(index, newQty) {
-  const row = currentData[index];
-  const updated = [{
-    VENDOR: row["VENDOR"],
-    MODEL: row["MODEL"],
-    PN: row["PN"],
-    ILOŚĆ: newQty,
-    updated: new Date().toLocaleString()
-  }];
-  fetch(apiUrl, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(updated)
-  }).then(() => {
-    showToast();
-    document.getElementById('success-sound').play();
-    highlightRow(index);
-  }).catch(err => {
-    console.error("Błąd zapisu:", err);
-  });
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("modal-yes").addEventListener("click", () => {
-    document.getElementById("confirm-modal").style.display = "none";
-    actuallySaveRow(pendingIndex, pendingQty);
-  });
-
-  document.getElementById("modal-no").addEventListener("click", () => {
-    document.getElementById("confirm-modal").style.display = "none";
-    pendingIndex = null;
-    pendingQty = null;
-  });
-});
-
 // 🔄 Highlight changed cell
 function highlightRow(index) {
   const row = document.getElementById(`qty-${index}`).closest('tr');
@@ -460,15 +411,17 @@ function confirmSave(index, newQty) {
   document.getElementById("confirm-modal").style.display = "flex";
 }
 
-document.getElementById("modal-yes").addEventListener("click", () => {
-  document.getElementById("confirm-modal").style.display = "none";
-  actuallySaveRow(pendingIndex, pendingQty);
-});
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("modal-yes").addEventListener("click", () => {
+    document.getElementById("confirm-modal").style.display = "none";
+    actuallySaveRow(pendingIndex, pendingQty);
+  });
 
-document.getElementById("modal-no").addEventListener("click", () => {
-  document.getElementById("confirm-modal").style.display = "none";
-  pendingIndex = null;
-  pendingQty = null;
+  document.getElementById("modal-no").addEventListener("click", () => {
+    document.getElementById("confirm-modal").style.display = "none";
+    pendingIndex = null;
+    pendingQty = null;
+  });
 });
 
 function actuallySaveRow(index, newQty) {
@@ -495,6 +448,7 @@ function actuallySaveRow(index, newQty) {
 </script>
 </div>
 <audio id="success-sound" preload="auto" src="https://www.soundjay.com/buttons/sounds/button-3.mp3"></audio>
+
 <div id="confirm-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:2000; align-items:center; justify-content:center;">
 <div style="background:white; padding:20px 30px; border-radius:12px; max-width:400px; width:90%; text-align:center; box-shadow: 0 0 20px rgba(0,0,0,0.3);">
 <p style="font-weight:bold; font-size:16px; color:#333;">Czy na pewno chcesz zatwierdzić tę zmianę?</p>
