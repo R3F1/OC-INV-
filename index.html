@@ -243,250 +243,6 @@ body.dark input, body.dark button {
 <div id="summary" style="margin-top: 20px; font-weight: bold; color: #2e7d32;"></div>
 <div id="toast">✅ Zapisano zmiany</div>
 <script>
-<!DOCTYPE html>
-
-<html lang="pl">
-<head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Inwentaryzacja OC</title>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&amp;display=swap" rel="stylesheet"/>
-<style>
-    body {
-      background: url('background_darkened.jpg') no-repeat center center fixed;
-  background-size: cover;
-      background-size: cover;
-    }
-    .overlay {
-  background-color: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-      background-color: rgba(255, 255, 255, 0.85);
-      padding: 40px 20px;
-      border-radius: 16px;
-      max-width: 1200px;
-      width: 100%;
-    }
-    
-    body {
-      font-family: 'Montserrat', sans-serif;
-      
-      margin: 0;
-      padding: 40px 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    h1 {
-      color: #1565c0;
-      margin-bottom: 20px;
-    }
-    input[type="text"] {
-      padding: 8px 12px;
-      margin-bottom: 20px;
-      font-size: 16px;
-      border-radius: 10px;
-      border: 1px solid #ccc;
-      width: 100%;
-      max-width: 300px;
-    }
-    button.refresh-btn {
-      margin: 20px;
-      padding: 10px 20px;
-      border-radius: 16px;
-      border: none;
-      background: #1565c0;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      max-width: 1100px;
-      background-color: white;
-      border-radius: 16px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.1);
-      overflow: hidden;
-    }
-    th, td {
-      padding: 14px;
-      border-bottom: 1px solid #ddd;
-      text-align: center;
-    }
-    th {
-      background-color: #2196f3;
-      color: white;
-    }
-    tr.low-stock {
-      background-color: #fff3cd;
-    }
-    tr.no-stock {
-      background-color: #f8d7da;
-    }
-    .qty-controls {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      flex-wrap: wrap;
-    }
-    .qty-controls button, .qty-controls input[type="number"] {
-      padding: 5px 8px;
-      font-size: 14px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-    }
-    .qty-controls button {
-      background-color: #1e88e5;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-    .qty-controls button:hover {
-      background-color: #1565c0;
-    }
-    .qty-controls input[type="number"] {
-      width: 60px;
-      text-align: center;
-    }
-    .qty-controls .confirm-btn {
-      background-color: #1565c0;
-      color: white;
-      border: none;
-    }
-    #toast {
-      visibility: hidden;
-      min-width: 200px;
-      background-color: #2196f3;
-      color: white;
-      text-align: center;
-      border-radius: 16px;
-      padding: 10px;
-      position: fixed;
-      bottom: 30px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 9999;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
-    }
-    #toast.show {
-      visibility: visible;
-      animation: fadein 0.5s, fadeout 0.5s 2s;
-    }
-    @keyframes fadein {
-      from { bottom: 10px; opacity: 0; }
-      to { bottom: 30px; opacity: 1; }
-    }
-    @keyframes fadeout {
-      from { bottom: 30px; opacity: 1; }
-      to { bottom: 10px; opacity: 0; }
-    }
-    @media screen and (max-width: 768px) {
-      th, td {
-        font-size: 14px;
-        padding: 10px;
-      }
-      .qty-controls {
-        flex-direction: column;
-        gap: 4px;
-      }
-    }
-  
-button {
-  transition: all 0.3s ease;
-}
-button:hover {
-  transform: scale(1.05);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-}
-
-/* 🔄 FADE-IN animation */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-tr {
-  animation: fadeIn 0.3s ease-in-out;
-}
-
-/* ✅ Highlight on change */
-.highlight {
-  animation: flash 1s ease;
-}
-@keyframes flash {
-  0% { background-color: #fff59d; }
-  100% { background-color: inherit; }
-}
-
-/* 🌙 Dark mode */
-body.dark {
-  background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
-  color: #e0e0e0;
-}
-body.dark .overlay {
-  background-color: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(6px);
-}
-body.dark table {
-  background-color: #1e1e1e;
-}
-body.dark th {
-  background-color: #0d47a1;
-}
-body.dark td {
-  color: #e0e0e0;
-}
-body.dark input, body.dark button {
-  background-color: #333;
-  color: #eee;
-}
-
-.qty-controls button:nth-child(1) { background-color: #e53935 !important; }
-.qty-controls button:nth-child(2) { background-color: #43a047 !important; }
-
-/* Font Awesome FA Bell animation fallback */
-@keyframes fa-shake {
-  0% { transform: rotate(0deg); }
-  25% { transform: rotate(15deg); }
-  50% { transform: rotate(-15deg); }
-  75% { transform: rotate(10deg); }
-  100% { transform: rotate(0deg); }
-}
-.fa-shake {
-  animation: fa-shake 1s infinite;
-}
-</style>
-</head>
-<body><button id="theme-toggle" style="position: fixed; top: 20px; right: 20px; z-index: 1000; background: #1565c0; color: white; border: none; padding: 10px; border-radius: 50%; font-size: 20px; cursor: pointer;">🌙</button>
-<div class="overlay">
-<div id="alert-banner" style="display:none; background-color:#ffcdd2; color:#b71c1c; font-weight:bold; padding:6px 12px; border-radius: 12px; margin-bottom: 20px; display: inline-flex; align-items: center; gap: 8px; font-size: 14px; justify-content: center; box-shadow: 0 4px 12px rgba(183, 28, 28, 0.4);">
-<i class="fa fa-bell fa-shake" style="font-size: 14px;"></i>
-<span id="alert-text">Alert</span>
-<button id="filter-zero" style="background-color:#c62828; color:white; border:none; border-radius:8px; padding:6px 10px; cursor:pointer; font-size: 13px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);">
-  🔍 Pokaż tylko zerowe
-</button>
-</div>
-<img alt="LCDR Logo" src="logoinv.png" style="max-width: 240px; margin-bottom: 20px; filter: drop-shadow(0 0 10px rgba(0,0,0,0.5));"/><h1>OC INWENTARYZACJA</h1><h2 id="slogan" style="margin-top: -10px; font-weight: 400; color: #b0bec5;">Zawsze aktualne dane</h2>
-<input id="search" oninput="filterTable()" placeholder="🔍 Filtruj po MODEL lub PN..." type="text"/><button id="export-csv" style="margin: 10px; padding: 10px 20px; background: #1e88e5; color: white; border: none; border-radius: 12px; cursor: pointer;">⬇️ Eksportuj do CSV</button>
-<button class="refresh-btn" onclick="loadData()">🔄 Odśwież dane</button>
-<table id="data-table">
-<thead>
-<tr>
-<th>Vendor</th>
-<th>Model</th>
-<th>PN</th>
-<th>Ilość</th>
-<th>Edycja</th>
-</tr>
-</thead>
-<tbody></tbody>
-</table>
-<div id="summary" style="margin-top: 20px; font-weight: bold; color: #2e7d32;"></div>
-<div id="toast">✅ Zapisano zmiany</div>
-<script>
     const apiUrl = "https://wispy-waterfall-e267.lukaszarmiajotpe.workers.dev/";
     let currentData = [];
 
@@ -507,18 +263,20 @@ body.dark input, body.dark button {
         tr.className = qty == 0 ? 'no-stock' : qty < 5 ? 'low-stock' : '';
 
         tr.innerHTML = `
-          <td>${row["VENDOR"] || ""}</td>
-          <td>${row["MODEL"] || ""}</td>
-          <td>${row["PN"] || ""}</td>
-          <td id="qty-${index}">${qty}</td>
-          <td>
-            <div class="qty-controls">
-              <button onclick="changeQty(${index}, -1)"><i class='fa fa-minus'></i></button>
-              <button onclick="changeQty(${index}, 1)"><i class='fa fa-plus'></i></button>
-              <input type="number" id="input-${index}" value="${qty}" />
-              <button class="confirm-btn" onclick="setQty(${index})"><i class='fa fa-check'></i></button>
-            </div>
-          </td>`;
+html += `
+<td>${row["VENDOR"] || ""}</td>
+<td>${row["MODEL"] || ""}</td>
+<td>${row["PN"] || ""}</td>
+<td id="qty-${index}">${qty}</td>
+<td>
+<div class="qty-controls">
+<button onclick="changeQty(${index}, -1)"><i class='fa fa-minus'></i></button>
+<button onclick="changeQty(${index}, 1)"><i class='fa fa-plus'></i></button>
+<input type="number" id="input-${index}" value="${qty}" />
+<button class="confirm-btn" onclick="setQty(${index})"><i class='fa fa-check'></i></button>
+</div>
+</td>`
+`;
         tbody.appendChild(tr);
       });
 
@@ -539,11 +297,6 @@ body.dark input, body.dark button {
 }
 
 function confirmQtyChange(index) {
-  const val = parseInt(document.getElementById(`input-${index}`).value);
-  document.getElementById('confirm-message').textContent = `Czy na pewno chcesz zatwierdzić zmianę ilości na ${val}?`;
-  pendingIndex = index;
-  pendingQty = val;
-  document.getElementById('confirm-modal').style.display = 'flex';
   const val = parseInt(document.getElementById(`input-${index}`).value);
   document.getElementById('confirm-message').textContent = `Czy na pewno chcesz zatwierdzić zmianę ilości na ${val}?`;
   pendingIndex = index;
@@ -674,23 +427,7 @@ document.addEventListener("DOMContentLoaded", () => {
     pendingIndex = null;
     pendingQty = null;
   });
-});
-</script>
-</div>
-<audio id="success-sound" preload="auto" src="https://www.soundjay.com/buttons/sounds/button-3.mp3"></audio>
-
-<div id="confirm-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:2000; align-items:center; justify-content:center;">
-<div style="background:white; padding:20px 30px; border-radius:12px; max-width:400px; width:90%; text-align:center; box-shadow: 0 0 20px rgba(0,0,0,0.3);">
-<p id="confirm-message" style="font-weight:bold; font-size:16px; color:#333;">Czy na pewno chcesz zatwierdzić tę zmianę?</p>
-<div style="margin-top:20px;">
-<button id="modal-yes" style="background:#4caf50; color:white; padding:8px 20px; border:none; border-radius:8px; margin-right:10px;">Tak</button>
-<button id="modal-no" style="background:#f44336; color:white; padding:8px 20px; border:none; border-radius:8px;">Anuluj</button>
-</div>
-</div>
-</div>
-</body>
-</html>
-</script>
+});</script>
 </div>
 <audio id="success-sound" preload="auto" src="https://www.soundjay.com/buttons/sounds/button-3.mp3"></audio>
 <div id="confirm-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:2000; align-items:center; justify-content:center;">
