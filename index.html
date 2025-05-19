@@ -90,6 +90,9 @@
       flex-wrap: wrap;
     }
     .qty-controls button, .qty-controls input[type="number"] {
+  min-width: 50px;
+  min-height: 50px;
+  font-size: 20px;
       padding: 5px 8px;
       font-size: 14px;
       border-radius: 8px;
@@ -109,6 +112,8 @@
       text-align: center;
     }
     .qty-controls .confirm-btn {
+  font-size: 24px;
+  padding: 12px 16px;
       background-color: #1565c0;
       color: white;
       border: none;
@@ -140,7 +145,7 @@
       from { bottom: 30px; opacity: 1; }
       to { bottom: 10px; opacity: 0; }
     }
-    @media screen and (max-width: 768px) {
+    @media screen and (max-width: 1024px) {
       th, td {
         font-size: 14px;
         padding: 10px;
@@ -440,3 +445,10 @@ document.getElementById("filter-zero").addEventListener("click", () => {
 <audio id="success-sound" preload="auto" src="https://www.soundjay.com/buttons/sounds/button-3.mp3"></audio>
 </body>
 </html>
+
+<style>
+button:active {
+  transform: scale(0.95);
+  box-shadow: 0 0 0 rgba(0,0,0,0);
+}
+</style>
