@@ -3,22 +3,38 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8">
-  <title>Test DO DODANIA</title>
+  <title>OC INWENTARYZACJA — Proponowana Ilość</title>
   <style>
     body {
-      font-family: sans-serif;
-      background: #f0f4f8;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #f0f4f8, #dbeafe);
+      margin: 0;
       padding: 20px;
     }
+    h1 {
+      color: #0d47a1;
+      font-size: 26px;
+    }
     table {
-      border-collapse: collapse;
       width: 100%;
+      border-collapse: collapse;
       background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 0 12px rgba(0,0,0,0.05);
     }
     th, td {
-      padding: 12px;
-      border: 1px solid #ccc;
+      padding: 14px;
       text-align: center;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background-color: #2196f3;
+      color: white;
+    }
+    .qty-cell {
+      font-size: 18px;
+      font-weight: bold;
     }
     .proposed-box {
       border: 1px solid #2196f3;
@@ -33,6 +49,18 @@
       font-size: 18px;
       color: #0d47a1;
     }
+    button {
+      border: none;
+      padding: 6px 10px;
+      margin: 2px;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .plus { background-color: #4caf50; color: white; }
+    .minus { background-color: #f44336; color: white; }
+    .confirm { background-color: #2196f3; color: white; }
+    .reset { background-color: #9e9e9e; color: white; }
     @keyframes pulse {
       0% { background-color: #e3f2fd; }
       50% { background-color: #bbdefb; }
@@ -44,23 +72,101 @@
   </style>
 </head>
 <body>
-  <h1>🔎 Test: Widoczność „DO DODANIA”</h1>
+  <h1>OC INWENTARYZACJA — Proponowana Ilość</h1>
   <table>
     <thead>
-      <tr><th>MODEL</th><th>ILOŚĆ</th></tr>
+      <tr>
+        <th>MODEL</th>
+        <th>ILOŚĆ</th>
+        <th>EDYCJA</th>
+      </tr>
     </thead>
     <tbody>
       <tr>
+        <td>SM-A4</td>
+        <td>
+          <div class="qty-cell" id="qty-0">367</div>
+          <div class="proposed-box" id="proposed-wrapper-0">
+            🟦 <strong>DO DODANIA:</strong>
+            <span id="proposed-0">0</span>
+          </div>
+        </td>
+        <td>
+          <button class="minus" onclick="changeQty(0, -1)">➖</button>
+          <button class="plus" onclick="changeQty(0, 1)">➕</button>
+          <button class="confirm" onclick="setQty(0)">✔️</button>
+          <button class="reset" onclick="resetQty(0)">✖️</button>
+        </td>
+      </tr>
+      <tr>
+        <td>F70</td>
+        <td>
+          <div class="qty-cell" id="qty-1">34</div>
+          <div class="proposed-box" id="proposed-wrapper-1">
+            🟦 <strong>DO DODANIA:</strong>
+            <span id="proposed-1">0</span>
+          </div>
+        </td>
+        <td>
+          <button class="minus" onclick="changeQty(1, -1)">➖</button>
+          <button class="plus" onclick="changeQty(1, 1)">➕</button>
+          <button class="confirm" onclick="setQty(1)">✔️</button>
+          <button class="reset" onclick="resetQty(1)">✖️</button>
+        </td>
+      </tr>
+      <tr>
         <td>QVN01</td>
         <td>
-          <div style="font-size:16px;">124</div>
-          <div class="proposed-box pulse">
-            🟦 <strong style="color:#1565c0;">DO DODANIA:</strong>
-            <span>5</span>
+          <div class="qty-cell" id="qty-2">124</div>
+          <div class="proposed-box" id="proposed-wrapper-2">
+            🟦 <strong>DO DODANIA:</strong>
+            <span id="proposed-2">0</span>
           </div>
+        </td>
+        <td>
+          <button class="minus" onclick="changeQty(2, -1)">➖</button>
+          <button class="plus" onclick="changeQty(2, 1)">➕</button>
+          <button class="confirm" onclick="setQty(2)">✔️</button>
+          <button class="reset" onclick="resetQty(2)">✖️</button>
         </td>
       </tr>
     </tbody>
   </table>
+
+  <script>
+    const proposedQtyMap = {};
+
+    function changeQty(index, delta) {
+      if (!proposedQtyMap[index]) proposedQtyMap[index] = 0;
+      proposedQtyMap[index] += delta;
+      if (proposedQtyMap[index] < 0) proposedQtyMap[index] = 0;
+      const el = document.getElementById(`proposed-${index}`);
+      if (el) {
+        el.textContent = proposedQtyMap[index];
+        const box = document.getElementById(`proposed-wrapper-${index}`);
+        if (box) {
+          box.classList.add("pulse");
+          setTimeout(() => box.classList.remove("pulse"), 600);
+        }
+      }
+    }
+
+    function resetQty(index) {
+      proposedQtyMap[index] = 0;
+      const el = document.getElementById(`proposed-${index}`);
+      if (el) el.textContent = "0";
+    }
+
+    function setQty(index) {
+      const qtyEl = document.getElementById(`qty-${index}`);
+      const current = parseInt(qtyEl.textContent);
+      const add = proposedQtyMap[index] || 0;
+      const finalQty = current + add;
+      qtyEl.textContent = finalQty;
+      proposedQtyMap[index] = 0;
+      const el = document.getElementById(`proposed-${index}`);
+      if (el) el.textContent = "0";
+    }
+  </script>
 </body>
 </html>
