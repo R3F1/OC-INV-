@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>OC INWENTARYZACJA</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -18,17 +19,28 @@
       font-size: 32px;
       font-weight: bold;
     }
-    .search-container {
+    .toolbar {
       width: 90%;
       margin: 20px auto;
-      text-align: center;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
-    .search-container input {
+    .toolbar input {
       padding: 10px;
       font-size: 16px;
       width: 300px;
       border: 1px solid #ccc;
       border-radius: 6px;
+    }
+    .toolbar button {
+      padding: 10px 16px;
+      font-size: 16px;
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
     }
     table {
       width: 90%;
@@ -44,12 +56,6 @@
     }
     th {
       background-color: #f1f1f1;
-    }
-    button {
-      padding: 6px 12px;
-      font-size: 16px;
-      cursor: pointer;
-      margin: 2px;
     }
     .add {
       background-color: #4caf50;
@@ -70,8 +76,9 @@
 <body>
   <header>OC INWENTARYZACJA</header>
 
-  <div class="search-container">
+  <div class="toolbar">
     <input type="text" id="search" placeholder="Szukaj modelu...">
+    <button onclick="exportToExcel()">📤 Export do Excela</button>
   </div>
 
   <table id="inventory-table">
@@ -90,8 +97,16 @@
   </table>
 
   <script>
-    const sheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQY8Ig67cQK39ZgmcZiTJDh9Rk__EWkkvgYnI6Oc6kWkRl-PAiIQoHphxBhCM2fMwGYtbqxxRYFT7l2/pub?output=csv';
+    const sheetURL = 'https://docs.google.com/spreadsheets/d/16ELRHLUGjbsyOmg4d22dRq2emS3YHEKEg2fLIkaBAYI/gviz/tq?tqx=out:csv&sheet=DANE%20DO%20STRONY';
     const tableBody = document.querySelector('#inventory-table tbody');
+
+    function getLocalQty(key) {
+      return localStorage.getItem(`qty-${key}`) || "0";
+    }
+
+    function setLocalQty(key, value) {
+      localStorage.setItem(`qty-${key}`, value);
+    }
 
     fetch(sheetURL)
       .then(res => res.text())
@@ -101,29 +116,34 @@
           const [vendor, model, pn] = rows[i];
           if (!model) continue;
 
-          const quantityId = `qty-${i}`;
+          const itemKey = model.trim().replace(/\s+/g, '_') + '_' + i;
+          const quantityId = `qty-${itemKey}`;
+          const savedQty = getLocalQty(itemKey);
+
           const tr = document.createElement('tr');
           tr.innerHTML = `
             <td>${vendor}</td>
             <td class="model">${model}</td>
             <td>${pn}</td>
             <td>
-              <input type="number" class="qty-input" id="${quantityId}" value="0" min="0">
+              <input type="number" class="qty-input" id="${quantityId}" value="${savedQty}" min="0" onchange="setLocalQty('${itemKey}', this.value)">
             </td>
             <td>
-              <button class="add" onclick="adjustQty('${quantityId}', 1)">➕</button>
-              <button class="remove" onclick="adjustQty('${quantityId}', -1)">➖</button>
+              <button class="add" onclick="adjustQty('${quantityId}', '${itemKey}', 1)">➕</button>
+              <button class="remove" onclick="adjustQty('${quantityId}', '${itemKey}', -1)">➖</button>
             </td>
           `;
           tableBody.appendChild(tr);
         }
       });
 
-    function adjustQty(id, change) {
+    function adjustQty(id, key, change) {
       const input = document.getElementById(id);
       let current = parseInt(input.value) || 0;
       current += change;
-      input.value = Math.max(0, current); // minimalnie 0
+      current = Math.max(0, current);
+      input.value = current;
+      setLocalQty(key, current);
     }
 
     document.getElementById('search').addEventListener('input', function () {
@@ -135,6 +155,25 @@
         row.style.display = modelText.includes(filter) ? '' : 'none';
       }
     });
+
+    function exportToExcel() {
+      const wb = XLSX.utils.book_new();
+      const ws_data = [["VENDOR", "MODEL", "PN", "ILOŚĆ"]];
+      const rows = document.querySelectorAll('#inventory-table tbody tr');
+
+      rows.forEach(row => {
+        const cells = row.querySelectorAll('td');
+        const vendor = cells[0].innerText;
+        const model = cells[1].innerText;
+        const pn = cells[2].innerText;
+        const qty = cells[3].querySelector('input').value;
+        ws_data.push([vendor, model, pn, qty]);
+      });
+
+      const ws = XLSX.utils.aoa_to_sheet(ws_data);
+      XLSX.utils.book_append_sheet(wb, ws, "Inwentaryzacja");
+      XLSX.writeFile(wb, "OC_INWENTARYZACJA.xlsx");
+    }
   </script>
 </body>
 </html>
