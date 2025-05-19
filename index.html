@@ -240,9 +240,36 @@ body {
 tr {
   animation: fadeInRow 0.3s ease-in-out;
 }
+
+@media screen and (max-width: 768px) {
+  table, th, td {
+    font-size: 13px;
+    padding: 6px;
+  }
+  .qty-controls {
+    flex-direction: column;
+    gap: 4px;
+  }
+  input[type="number"] {
+    width: 50px;
+  }
+  button {
+    font-size: 13px;
+    padding: 6px 10px;
+  }
+  #top-bar {
+    font-size: 13px;
+    padding: 4px 8px;
+  }
+}
 </style>
 </head>
-<body><button id="theme-toggle" style="position: fixed; top: 20px; right: 20px; z-index: 1000; background: #1565c0; color: white; border: none; padding: 10px; border-radius: 50%; font-size: 20px; cursor: pointer;">🌙</button>
+<body>
+<div id="top-bar" style="position:sticky; top:0; z-index:999; background:rgba(255,255,255,0.6); backdrop-filter:blur(4px); padding:6px 12px; width:100%; display:flex; justify-content:space-between; align-items:center; font-size:14px; font-weight:bold;">
+<span id="current-date">📅</span>
+<span id="current-time">🕒</span>
+</div>
+<button id="theme-toggle" style="position: fixed; top: 20px; right: 20px; z-index: 1000; background: #1565c0; color: white; border: none; padding: 10px; border-radius: 50%; font-size: 20px; cursor: pointer;">🌙</button>
 <div class="overlay">
 <div id="alert-banner" style="display:none; background-color:#ffcdd2; color:#b71c1c; font-weight:bold; padding:6px 12px; border-radius: 12px; margin-bottom: 20px; display: inline-flex; align-items: center; gap: 8px; font-size: 14px; justify-content: center; box-shadow: 0 4px 12px rgba(183, 28, 28, 0.4);">
 <i class="fa fa-bell fa-shake" style="font-size: 14px;"></i>
@@ -470,10 +497,18 @@ function actuallySaveRow(index, newQty) {
     console.error("Błąd zapisu:", err);
   });
 }
+
+// ⏰ Live Clock and Date
+function updateClock() {
+  const now = new Date();
+  document.getElementById("current-time").textContent = "🕒 " + now.toLocaleTimeString();
+  document.getElementById("current-date").textContent = "📅 " + now.toLocaleDateString();
+}
+setInterval(updateClock, 1000);
+updateClock();
 </script>
 </div>
 <audio id="success-sound" preload="auto" src="https://www.soundjay.com/buttons/sounds/button-3.mp3"></audio>
-
 <div id="confirm-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:2000; align-items:center; justify-content:center;">
 <div style="background:white; padding:20px 30px; border-radius:12px; max-width:400px; width:90%; text-align:center; box-shadow: 0 0 20px rgba(0,0,0,0.3); animation: fadeInModal 0.4s ease;">
 <p style="font-weight:bold; font-size:16px; color:#333;">Czy na pewno chcesz zatwierdzić tę zmianę?</p>
