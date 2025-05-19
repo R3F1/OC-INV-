@@ -231,6 +231,22 @@ body.dark input, body.dark button {
 .pulse {
   animation: pulse 0.6s ease;
 }
+
+.proposed-box {
+  border: 1px solid #2196f3;
+  padding: 4px 8px;
+  margin-top: 4px;
+  border-radius: 6px;
+  background: #e3f2fd;
+}
+@keyframes pulse {
+  0% { background-color: #e3f2fd; }
+  50% { background-color: #bbdefb; }
+  100% { background-color: #e3f2fd; }
+}
+.pulse {
+  animation: pulse 0.6s ease;
+}
 </style>
 </head>
 <body><button id="theme-toggle" style="position: fixed; top: 20px; right: 20px; z-index: 1000; background: #1565c0; color: white; border: none; padding: 10px; border-radius: 50%; font-size: 20px; cursor: pointer;">🌙</button>
@@ -417,8 +433,7 @@ document.getElementById("filter-zero").addEventListener("click", () => {
 
 function resetQty(index) {
   proposedQtyMap[index] = 0;
-  const el = document.getElementById(`proposed-${index}`);
-  if (el) el.textContent = "0";
+  document.getElementById(`proposed-${index}`).textContent = "0";
 }
 
 function animateConfirmation(index) {
