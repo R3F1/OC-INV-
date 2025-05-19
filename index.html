@@ -10,6 +10,20 @@
     th, td { padding: 12px; text-align: center; border: 1px solid #ccc; }
     th { background: #2196f3; color: white; }
     .proposed-box {
+  padding: 6px 10px;
+  margin-top: 6px;
+  border-radius: 6px;
+  font-size: 14px;
+  border: 1px solid transparent;
+}
+.proposed-box.add {
+  background: #e8f5e9;
+  border-color: #4caf50;
+}
+.proposed-box.sub {
+  background: #ffebee;
+  border-color: #c62828;
+}
       border: 1px solid #2196f3;
       padding: 6px 10px;
       margin-top: 6px;
@@ -98,7 +112,21 @@ function changeQty(index, delta) {
   if (proposedQtyMap[index] < 0) proposedQtyMap[index] = 0;
   const el = document.getElementById(`proposed-${index}`);
   if (el) {
-    el.textContent = proposedQtyMap[index];
+    
+  el.textContent = proposedQtyMap[index];
+  const box = document.getElementById(`proposed-wrapper-${index}`);
+  if (box) {
+    box.classList.add("pulse");
+    setTimeout(() => box.classList.remove("pulse"), 600);
+    if (proposedQtyMap[index] > 0) {
+      box.className = 'proposed-box add';
+    box.innerHTML = '🟢 <strong>DO DODANIA:</strong> <span id="proposed-' + index + '">' + proposedQtyMap[index] + '</span>';
+    } else {
+      box.className = 'proposed-box sub';
+    box.innerHTML = '🔴 <strong>DO ODJĘCIA:</strong> <span id="proposed-' + index + '">' + Math.abs(proposedQtyMap[index]) + '</span>';
+    }
+  }
+  
     const box = document.getElementById(`proposed-wrapper-${index}`);
     if (box) {
       box.classList.add("pulse");
