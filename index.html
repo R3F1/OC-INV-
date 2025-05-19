@@ -71,14 +71,39 @@
       animation: pulse 0.6s ease;
     }
   
-
+.proposed-box {
+  padding: 6px 10px;
+  margin-top: 6px;
+  border-radius: 6px;
+  font-size: 14px;
+  border: 1px solid transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: bold;
+}
 .proposed-box.add {
   background: #e8f5e9;
   border: 1px solid #4caf50;
+  color: #2e7d32;
 }
 .proposed-box.sub {
   background: #ffebee;
   border: 1px solid #c62828;
+  color: #c62828;
+}
+.proposed-box-icon {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 2px;
+}
+.proposed-box.add .proposed-box-icon {
+  background: #4caf50;
+}
+.proposed-box.sub .proposed-box-icon {
+  background: #c62828;
 }
 </style>
 </head>
@@ -146,26 +171,18 @@
 <script>
     const proposedQtyMap = {};
 
-    
     function changeQty(index, delta) {
       if (!proposedQtyMap[index]) proposedQtyMap[index] = 0;
       proposedQtyMap[index] += delta;
-      const el = document.getElementById(`proposed-${index}`);
-      const box = document.getElementById(`proposed-wrapper-${index}`);
       if (proposedQtyMap[index] < 0) proposedQtyMap[index] = 0;
-      if (el && box) {
+      const el = document.getElementById(`proposed-${index}`);
+      if (el) {
         el.textContent = proposedQtyMap[index];
-        box.classList.add("pulse");
-        setTimeout(() => box.classList.remove("pulse"), 600);
-        if (proposedQtyMap[index] > 0) {
-          box.className = "proposed-box add";
-          box.innerHTML = '🟢 <strong>DO DODANIA:</strong> <span id="proposed-' + index + '">' + proposedQtyMap[index] + '</span>';
-        } else {
-          box.className = "proposed-box sub";
-          box.innerHTML = '🔴 <strong>DO ODJĘCIA:</strong> <span id="proposed-' + index + '">' + proposedQtyMap[index] + '</span>';
+        const box = document.getElementById(`proposed-wrapper-${index}`);
+        if (box) {
+          box.classList.add("pulse");
+          setTimeout(() => box.classList.remove("pulse"), 600);
         }
-      }
-    }
       }
     }
 
@@ -175,8 +192,19 @@
       if (el) el.textContent = "0";
     }
 
-    function setQty(index) {
-      const qtyEl = document.getElementById(`qty-${index}`);
+    
+function setQty(index) {
+  const add = proposedQtyMap[index] || 0;
+  if (add === 0) return;
+  const modalText = add > 0
+    ? `❗ Czy na pewno chcesz dodać <span id="modal-qty">${add}</span> sztuk?`
+    : `❗ Czy na pewno chcesz odjąć <span id="modal-qty">${Math.abs(add)}</span> sztuk?`;
+  document.querySelector("#confirm-modal p").innerHTML = modalText;
+  document.getElementById("confirm-modal").style.display = "flex";
+  pendingIndex = index;
+  pendingAddQty = add;
+}
+            `);
       const current = parseInt(qtyEl.textContent);
       const add = proposedQtyMap[index] || 0;
       const finalQty = current + add;
@@ -185,80 +213,7 @@
       const el = document.getElementById(`proposed-${index}`);
       if (el) el.textContent = "0";
     }
-  
-const apiUrl = "https://wispy-waterfall-e267.lukaszarmiajotpe.workers.dev/";
-const postUrl = "https://script.google.com/macros/s/AKfycbxe4JpyDE_TG2tjMHfZDnyrh6_Mr_SLHK_pvqf07gwNLde_rHDFGMEaBKnKt0tfj4SBUQ/exec";
-let currentData = [];
-
-async function loadData() {
-  const res = await fetch(apiUrl);
-  const data = await res.json();
-  currentData = data;
-  renderTable(data);
-}
-
-function renderTable(data) {
-  const tableBody = document.getElementById("table-body");
-  tableBody.innerHTML = "";
-  data.forEach((row, index) => {
-    let html = `<tr id="row-${index}">`;
-    html += `<td>${row["MODEL"]}</td>`;
-    html += `<td>${row["PN"]}</td>`;
-    html += `<td>
-      <div><span id="qty-${index}">${row["ILOŚĆ"]}</span></div>
-      <div class="proposed-box sub" id="proposed-wrapper-${index}">
-        🔴 <strong>DO ODJĘCIA:</strong> <span id="proposed-${index}">0</span>
-      </div>
-    </td>`;
-    html += `<td>
-      <button class="minus" onclick="changeQty(${index}, -1)">➖</button>
-      <button class="plus" onclick="changeQty(${index}, 1)">➕</button>
-      <button class="confirm" onclick="confirmQty(${index})">✔️</button>
-      <button class="reset" onclick="resetQty(${index})">✖️</button>
-    </td>`;
-    html += "</tr>";
-    tableBody.innerHTML += html;
-  });
-}
-
-document.getElementById("modal-confirm").addEventListener("click", () => {
-  const index = pendingIndex;
-  const add = pendingAddQty;
-  const base = parseInt(document.getElementById(`qty-${index}`).textContent);
-  const finalQty = base + add;
-  if (finalQty < 0) {
-    alert("❌ Nie można odjąć więcej niż aktualna ilość!");
-    document.getElementById("confirm-modal").style.display = "none";
-    return;
-  }
-  document.getElementById(`qty-${index}`).textContent = finalQty;
-  document.getElementById(`proposed-${index}`).textContent = "0";
-  proposedQtyMap[index] = 0;
-  document.getElementById("confirm-modal").style.display = "none";
-
-  const row = currentData[index];
-  const payload = [{
-    MODEL: row["MODEL"],
-    PN: row["PN"],
-    ILOŚĆ: finalQty,
-    updated: new Date().toLocaleString()
-  }];
-  fetch(postUrl, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
-  }).then(() => console.log("[✔️] Dane wysłane:", payload))
-    .catch(err => console.error("❌ Błąd zapisu:", err));
-});
-
-document.getElementById("modal-cancel").addEventListener("click", () => {
-  document.getElementById("confirm-modal").style.display = "none";
-  pendingIndex = null;
-  pendingAddQty = 0;
-});
-
-loadData();
-</script>
+  </script>
 <div id="confirm-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
 <div style="background:white; padding:20px 30px; border-radius:10px; text-align:center; box-shadow:0 0 10px rgba(0,0,0,0.3);">
 <p style="font-size:16px; font-weight:bold; color:#e65100;">❗ Czy na pewno chcesz dodać <span id="modal-qty">X</span> sztuk?</p>
@@ -291,14 +246,19 @@ loadData();
     pendingAddQty = 0;
   });
 
-  function setQty(index) {
-    const add = proposedQtyMap[index] || 0;
-    if (add <= 0) return;
-    document.getElementById("modal-qty").textContent = add;
-    document.getElementById("confirm-modal").style.display = "flex";
-    pendingIndex = index;
-    pendingAddQty = add;
-  }
+  
+function setQty(index) {
+  const add = proposedQtyMap[index] || 0;
+  if (add === 0) return;
+  const modalText = add > 0
+    ? `❗ Czy na pewno chcesz dodać <span id="modal-qty">${add}</span> sztuk?`
+    : `❗ Czy na pewno chcesz odjąć <span id="modal-qty">${Math.abs(add)}</span> sztuk?`;
+  document.querySelector("#confirm-modal p").innerHTML = modalText;
+  document.getElementById("confirm-modal").style.display = "flex";
+  pendingIndex = index;
+  pendingAddQty = add;
+}
+            
 </script>
 </body>
 </html>
