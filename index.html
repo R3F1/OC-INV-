@@ -220,6 +220,10 @@ body.dark input, body.dark button {
 <div id="alert-banner" style="display:none; background-color:#ffcdd2; color:#b71c1c; font-weight:bold; padding:12px 20px; border-radius: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
 <i class="fa fa-bell fa-shake" style="font-size: 18px;"></i>
 <span id="alert-text">Alert</span>
+
+<button id="filter-zero" style="margin-left:auto; background-color:#c62828; color:white; border:none; border-radius:8px; padding:6px 12px; cursor:pointer;">
+  🔍 Pokaż tylko zerowe
+</button>
 </div>
 <img alt="LCDR Logo" src="logoinv.png" style="max-width: 240px; margin-bottom: 20px; filter: drop-shadow(0 0 10px rgba(0,0,0,0.5));"/><h1>OC INWENTARYZACJA</h1><h2 id="slogan" style="margin-top: -10px; font-weight: 400; color: #b0bec5;">Zawsze aktualne dane</h2>
 <input id="search" oninput="filterTable()" placeholder="🔍 Filtruj po MODEL lub PN..." type="text"/><button id="export-csv" style="margin: 10px; padding: 10px 20px; background: #1e88e5; color: white; border: none; border-radius: 12px; cursor: pointer;">⬇️ Eksportuj do CSV</button>
@@ -381,9 +385,20 @@ function highlightRow(index) {
   row.classList.add("highlight");
   setTimeout(() => row.classList.remove("highlight"), 1000);
 }
+
+
+let zeroFilterActive = false;
+
+document.getElementById("filter-zero").addEventListener("click", () => {
+  zeroFilterActive = !zeroFilterActive;
+  const filtered = zeroFilterActive
+    ? currentData.filter(row => parseInt(row["ILOŚĆ"]) === 0)
+    : currentData;
+  renderTable(filtered);
+  document.getElementById("filter-zero").textContent = zeroFilterActive ? "↩️ Pokaż wszystkie" : "🔍 Pokaż tylko zerowe";
+});
 </script>
 </div>
-
 <audio id="success-sound" preload="auto" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_7d0b5b3f00.mp3?filename=correct-2-46134.mp3"></audio>
 </body>
 </html>
