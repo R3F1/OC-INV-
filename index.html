@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <script>
+      function loadData() {
+        google.script.run.withSuccessHandler(function(data) {
+          var table = document.getElementById('data-table');
+          data.forEach(function(row, index) {
+            if(index === 0) return; // Pomijamy nagłówek
+            var tr = document.createElement('tr');
+            row.forEach(function(cell) {
+              var td = document.createElement('td');
+              td.textContent = cell;
+              tr.appendChild(td);
+            });
+            table.appendChild(tr);
+          });
+        }).getData();
+      }
+      window.onload = loadData;
+    </script>
+  </head>
+  <body>
+    <h1>Inwentaryzacja Części</h1>
+    <table border="1">
+      <thead>
+        <tr>
+          <th>MODEL</th>
+          <th>OPEN CELL</th>
+          <th>POBRANO</th>
+          <th>POBIERZ</th>
+          <th>ODŁÓŻ</th>
+          <th>POZOSTAŁO</th>
+          <th>VENDOR</th>
+        </tr>
+      </thead>
+      <tbody id="data-table"></tbody>
+    </table>
+  </body>
+</html>
