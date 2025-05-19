@@ -47,11 +47,18 @@
       background-color: #4caf50;
       color: white;
     }
+    tr.low-stock {
+      background-color: #fff3cd;
+    }
+    tr.no-stock {
+      background-color: #f8d7da;
+    }
     .qty-controls {
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 6px;
+      flex-wrap: wrap;
     }
     .qty-controls button, .qty-controls input[type="number"] {
       padding: 5px 8px;
@@ -77,6 +84,43 @@
       color: white;
       border: none;
     }
+    #toast {
+      visibility: hidden;
+      min-width: 200px;
+      background-color: #4caf50;
+      color: white;
+      text-align: center;
+      border-radius: 8px;
+      padding: 10px;
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 9999;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+    #toast.show {
+      visibility: visible;
+      animation: fadein 0.5s, fadeout 0.5s 2s;
+    }
+    @keyframes fadein {
+      from { bottom: 10px; opacity: 0; }
+      to { bottom: 30px; opacity: 1; }
+    }
+    @keyframes fadeout {
+      from { bottom: 30px; opacity: 1; }
+      to { bottom: 10px; opacity: 0; }
+    }
+    @media screen and (max-width: 768px) {
+      th, td {
+        font-size: 14px;
+        padding: 10px;
+      }
+      .qty-controls {
+        flex-direction: column;
+        gap: 4px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -94,6 +138,7 @@
     </thead>
     <tbody></tbody>
   </table>
+  <div id="toast">✅ Zapisano zmiany</div>
 
   <script>
     const apiUrl = "https://wispy-waterfall-e267.lukaszarmiajotpe.workers.dev/";
@@ -111,8 +156,10 @@
       tbody.innerHTML = "";
 
       data.forEach((row, index) => {
-        const tr = document.createElement("tr");
         const qty = row["ILOŚĆ"] || 0;
+        const tr = document.createElement("tr");
+        tr.className = qty == 0 ? 'no-stock' : qty < 5 ? 'low-stock' : '';
+
         tr.innerHTML = `
           <td>${row["VENDOR"] || ""}</td>
           <td>${row["MODEL"] || ""}</td>
@@ -162,6 +209,7 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(updated)
         });
+        showToast();
       } catch (err) {
         console.error("Błąd zapisu:", err);
       }
@@ -171,9 +219,17 @@
       const search = document.getElementById("search").value.toLowerCase();
       const filtered = currentData.filter(row =>
         row["MODEL"]?.toLowerCase().includes(search) ||
-        row["PN"]?.toLowerCase().includes(search)
+        row["PN"]?.toString().toLowerCase().includes(search)
       );
       renderTable(filtered);
+    }
+
+    function showToast() {
+      const toast = document.getElementById("toast");
+      toast.className = "show";
+      setTimeout(() => {
+        toast.className = toast.className.replace("show", "");
+      }, 2500);
     }
 
     loadData();
