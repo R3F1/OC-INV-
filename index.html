@@ -155,12 +155,53 @@ button:hover {
   transform: scale(1.05);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
+
+/* 🔄 FADE-IN animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+tr {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* ✅ Highlight on change */
+.highlight {
+  animation: flash 1s ease;
+}
+@keyframes flash {
+  0% { background-color: #fff59d; }
+  100% { background-color: inherit; }
+}
+
+/* 🌙 Dark mode */
+body.dark {
+  background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+  color: #e0e0e0;
+}
+body.dark .overlay {
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px);
+}
+body.dark table {
+  background-color: #1e1e1e;
+}
+body.dark th {
+  background-color: #0d47a1;
+}
+body.dark td {
+  color: #e0e0e0;
+}
+body.dark input, body.dark button {
+  background-color: #333;
+  color: #eee;
+}
 </style>
 </head>
-<body>
+<body><button id="theme-toggle" style="position: fixed; top: 20px; right: 20px; z-index: 1000; background: #1565c0; color: white; border: none; padding: 10px; border-radius: 50%; font-size: 20px; cursor: pointer;">🌙</button>
 <div class="overlay">
 <img alt="LCDR Logo" src="logoinv.png" style="max-width: 240px; margin-bottom: 20px; filter: drop-shadow(0 0 10px rgba(0,0,0,0.5));"/><h1>OC INWENTARYZACJA</h1>
-<input id="search" oninput="filterTable()" placeholder="🔍 Filtruj po MODEL lub PN..." type="text"/>
+<input id="search" oninput="filterTable()" placeholder="🔍 Filtruj po MODEL lub PN..." type="text"/><button id="export-csv" style="margin: 10px; padding: 10px 20px; background: #1e88e5; color: white; border: none; border-radius: 12px; cursor: pointer;">⬇️ Eksportuj do CSV</button>
 <button class="refresh-btn" onclick="loadData()">🔄 Odśwież dane</button>
 <table id="data-table">
 <thead>
@@ -248,6 +289,7 @@ button:hover {
           body: JSON.stringify(updated)
         });
         showToast();
+      highlightRow(index);
       } catch (err) {
         console.error("Błąd zapisu:", err);
       }
@@ -277,7 +319,34 @@ button:hover {
     }
 
     loadData();
-  </script>
+  
+// 🌙 Toggle Dark Mode
+document.getElementById('theme-toggle').addEventListener('click', () => {
+  document.body.classList.toggle('dark');
+  const icon = document.getElementById('theme-toggle');
+  icon.textContent = document.body.classList.contains('dark') ? '☀️' : '🌙';
+});
+
+// ⬇️ Export to CSV
+document.getElementById('export-csv').addEventListener('click', () => {
+  let csv = 'Vendor,Model,PN,Ilość\n';
+  currentData.forEach(row => {
+    csv += `${row["VENDOR"]},${row["MODEL"]},${row["PN"]},${row["ILOŚĆ"]}\n`;
+  });
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "inwentaryzacja.csv";
+  link.click();
+});
+
+// 🔄 Highlight changed cell
+function highlightRow(index) {
+  const row = document.getElementById(`qty-${index}`).closest('tr');
+  row.classList.add("highlight");
+  setTimeout(() => row.classList.remove("highlight"), 1000);
+}
+</script>
 </div>
 </body>
 </html>
