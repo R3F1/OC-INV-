@@ -14,8 +14,10 @@
       background-size: cover;
     }
     .overlay {
-  background-color: rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(4px);
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
       background-color: rgba(255, 255, 255, 0.85);
       padding: 40px 20px;
       border-radius: 16px;
@@ -196,11 +198,14 @@ body.dark input, body.dark button {
   background-color: #333;
   color: #eee;
 }
+
+.qty-controls button:nth-child(1) { background-color: #e53935 !important; }
+.qty-controls button:nth-child(2) { background-color: #43a047 !important; }
 </style>
 </head>
 <body><button id="theme-toggle" style="position: fixed; top: 20px; right: 20px; z-index: 1000; background: #1565c0; color: white; border: none; padding: 10px; border-radius: 50%; font-size: 20px; cursor: pointer;">🌙</button>
 <div class="overlay">
-<img alt="LCDR Logo" src="logoinv.png" style="max-width: 240px; margin-bottom: 20px; filter: drop-shadow(0 0 10px rgba(0,0,0,0.5));"/><h1>OC INWENTARYZACJA</h1>
+<img alt="LCDR Logo" src="logoinv.png" style="max-width: 240px; margin-bottom: 20px; filter: drop-shadow(0 0 10px rgba(0,0,0,0.5));"/><h1>OC INWENTARYZACJA</h1><h2 id="slogan" style="margin-top: -10px; font-weight: 400; color: #b0bec5;"></h2>
 <input id="search" oninput="filterTable()" placeholder="🔍 Filtruj po MODEL lub PN..." type="text"/><button id="export-csv" style="margin: 10px; padding: 10px 20px; background: #1e88e5; color: white; border: none; border-radius: 12px; cursor: pointer;">⬇️ Eksportuj do CSV</button>
 <button class="refresh-btn" onclick="loadData()">🔄 Odśwież dane</button>
 <table id="data-table">
@@ -215,7 +220,7 @@ body.dark input, body.dark button {
 </thead>
 <tbody></tbody>
 </table>
-<div id="summary" style="margin-top: 20px; font-weight: bold; color: #2e7d32;"></div>
+<div id="summary" style="margin-top: 20px; font-weight: bold; color: #2e7d32;">📦 Razem sztuk: <span id="sum-total">0</span> | 📁 Unikalnych modeli: <span id="sum-models">0</span></div>
 <div id="toast">✅ Zapisano zmiany</div>
 <script>
     const apiUrl = "https://wispy-waterfall-e267.lukaszarmiajotpe.workers.dev/";
@@ -312,7 +317,16 @@ body.dark input, body.dark button {
       }, 2500);
     }
 
-    function updateSummary(data) {
+    // Updated updateSummary function
+
+function updateSummary(data) {
+  const total = data.reduce((sum, row) => sum + (parseInt(row["ILOŚĆ"]) || 0), 0);
+  const uniqueModels = new Set(data.map(row => row["MODEL"])).size;
+  document.getElementById("sum-total").textContent = total;
+  document.getElementById("sum-models").textContent = uniqueModels;
+}
+
+// OLD function updateSummary(data) {
       const total = data.reduce((sum, row) => sum + (parseInt(row["ILOŚĆ"]) || 0), 0);
       const uniqueModels = new Set(data.map(row => row["MODEL"])).size;
       document.getElementById("summary").textContent = `📦 Razem sztuk: ${total} | Unikalnych modeli: ${uniqueModels}`;
@@ -346,6 +360,15 @@ function highlightRow(index) {
   row.classList.add("highlight");
   setTimeout(() => row.classList.remove("highlight"), 1000);
 }
+
+
+// 🌀 Dynamic slogan
+const phrases = ["Zawsze aktualne dane", "Szybki podgląd zapasów", "Inteligentna inwentaryzacja"];
+let pIndex = 0;
+setInterval(() => {
+  document.getElementById("slogan").textContent = phrases[pIndex % phrases.length];
+  pIndex++;
+}, 4000);
 </script>
 </div>
 </body>
