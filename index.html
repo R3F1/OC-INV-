@@ -243,167 +243,24 @@ body.dark input, body.dark button {
 <div id="summary" style="margin-top: 20px; font-weight: bold; color: #2e7d32;"></div>
 <div id="toast">✅ Zapisano zmiany</div>
 <script>
-    const apiUrl = "https://wispy-waterfall-e267.lukaszarmiajotpe.workers.dev/";
-    let currentData = [];
-
-    async function loadData() {
-      const res = await fetch(apiUrl);
-      const json = await res.json();
-      currentData = json;
-      renderTable(json);
-    }
-
-    function renderTable(data) {
-      const tbody = document.querySelector("#data-table tbody");
-      tbody.innerHTML = "";
-
-      data.forEach((row, index) => {
-        const qty = row["ILOŚĆ"] || 0;
-        const tr = document.createElement("tr");
-        tr.className = qty == 0 ? 'no-stock' : qty < 5 ? 'low-stock' : '';
-
-        tr.innerHTML = `
-          <td>${row["VENDOR"] || ""}</td>
-          <td>${row["MODEL"] || ""}</td>
-          <td>${row["PN"] || ""}</td>
-          <td id="qty-${index}">${qty}</td>
-          <td>
-            <div class="qty-controls">
-              <button onclick="changeQty(${index}, -1)"><i class='fa fa-minus'></i></button>
-              <button onclick="changeQty(${index}, 1)"><i class='fa fa-plus'></i></button>
-              <input type="number" id="input-${index}" value="${qty}" />
-              <button class="confirm-btn" onclick="setQty(${index})"><i class='fa fa-check'></i></button>
-            </div>
-          </td>`;
-        tbody.appendChild(tr);
-      });
-
-      updateSummary(data);
-    }
-
-    function changeQty(index, delta) {
-      const cell = document.getElementById(`qty-${index}`);
-      let val = parseInt(cell.textContent);
-      val = Math.max(0, val + delta);
-      cell.textContent = val;
-      document.getElementById(`input-${index}`).value = val;
-      saveRow(index, val);
-    }
-
-    function setQty(index) {
-      const input = document.getElementById(`input-${index}`);
-      let val = parseInt(input.value);
-      val = Math.max(0, isNaN(val) ? 0 : val);
-      document.getElementById(`qty-${index}`).textContent = val;
-      saveRow(index, val);
-    }
-
-    function saveRow(index, newQty) {
-  confirmSave(index, newQty);
-}
-  if (!confirm('Czy na pewno chcesz zatwierdzić tę zmianę?')) return;
-      const row = currentData[index];
-      const updated = [{
-        VENDOR: row["VENDOR"],
-        MODEL: row["MODEL"],
-        PN: row["PN"],
-        ILOŚĆ: newQty,
-        updated: new Date().toLocaleString()
-      }];
-      try {
-        await fetch(apiUrl, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(updated)
-        });
-        showToast();
-      document.getElementById('success-sound').play();
-      highlightRow(index);
-      } catch (err) {
-        console.error("Błąd zapisu:", err);
-      }
-    }
-
-    function filterTable() {
-      const search = document.getElementById("search").value.toLowerCase();
-      const filtered = currentData.filter(row =>
-        row["MODEL"]?.toLowerCase().includes(search) ||
-        row["PN"]?.toString().toLowerCase().includes(search)
-      );
-      renderTable(filtered);
-    }
-
-    function showToast() {
-      const toast = document.getElementById("toast");
-      toast.className = "show";
-      setTimeout(() => {
-        toast.className = toast.className.replace("show", "");
-      }, 2500);
-    }
-
-    function updateSummary(data) {
-      const total = data.reduce((sum, row) => sum + (parseInt(row["ILOŚĆ"]) || 0), 0);
-      const uniqueModels = new Set(data.map(row => row["MODEL"])).size;
-      
-  // 🔔 Alert system for items with 0 stock
-  const zeroItems = data.filter(row => parseInt(row["ILOŚĆ"]) === 0);
-  const banner = document.getElementById("alert-banner");
-  const alertText = document.getElementById("alert-text");
-
-  if (zeroItems.length > 0) {
-    banner.style.display = "flex";
-    alertText.textContent = `🚨 ${zeroItems.length} pozycji ma ILOŚĆ = 0!`;
-  } else {
-    banner.style.display = "none";
-  }
-
-  document.getElementById("summary").textContent = `📦 Razem sztuk: ${total} | Unikalnych modeli: ${uniqueModels}`;
-    }
-
-    loadData();
-  
-// 🌙 Toggle Dark Mode
-document.getElementById('theme-toggle').addEventListener('click', () => {
-  document.body.classList.toggle('dark');
-  const icon = document.getElementById('theme-toggle');
-  icon.textContent = document.body.classList.contains('dark') ? '☀️' : '🌙';
-});
-
-// ⬇️ Export to CSV
-document.getElementById('export-csv').addEventListener('click', () => {
-  let csv = 'Vendor,Model,PN,Ilość\n';
-  currentData.forEach(row => {
-    csv += `${row["VENDOR"]},${row["MODEL"]},${row["PN"]},${row["ILOŚĆ"]}\n`;
-  });
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download = "inwentaryzacja.csv";
-  link.click();
-});
-
-// 🔄 Highlight changed cell
-function highlightRow(index) {
-  const row = document.getElementById(`qty-${index}`).closest('tr');
-  row.classList.add("highlight");
-  setTimeout(() => row.classList.remove("highlight"), 1000);
-}
-
-
-let zeroFilterActive = false;
-
-document.getElementById("filter-zero").addEventListener("click", () => {
-  zeroFilterActive = !zeroFilterActive;
-  const filtered = zeroFilterActive
-    ? currentData.filter(row => parseInt(row["ILOŚĆ"]) === 0)
-    : currentData;
-  renderTable(filtered);
-  document.getElementById("filter-zero").textContent = zeroFilterActive ? "↩️ Pokaż wszystkie" : "🔍 Pokaż tylko zerowe";
-});
-
-
 let pendingIndex = null;
 let pendingQty = null;
+
+async function loadData() {
+  console.log("[debug] loadData() uruchomione");
+  document.getElementById("debug-log").textContent = "[debug] Ładowanie danych...";
+  try {
+    const res = await fetch(apiUrl);
+    const json = await res.json();
+    console.log("[debug] dane:", json);
+    document.getElementById("debug-log").textContent = "[debug] Załadowano " + json.length + " wierszy";
+    currentData = json;
+    renderTable(json);
+  } catch (err) {
+    console.error("[debug] Błąd w loadData:", err);
+    document.getElementById("debug-log").textContent = "[debug] BŁĄD: " + err.message;
+  }
+}
 
 function confirmSave(index, newQty) {
   pendingIndex = index;
@@ -411,18 +268,9 @@ function confirmSave(index, newQty) {
   document.getElementById("confirm-modal").style.display = "flex";
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("modal-yes").addEventListener("click", () => {
-    document.getElementById("confirm-modal").style.display = "none";
-    actuallySaveRow(pendingIndex, pendingQty);
-  });
-
-  document.getElementById("modal-no").addEventListener("click", () => {
-    document.getElementById("confirm-modal").style.display = "none";
-    pendingIndex = null;
-    pendingQty = null;
-  });
-});
+function saveRow(index, newQty) {
+  confirmSave(index, newQty);
+}
 
 function actuallySaveRow(index, newQty) {
   const row = currentData[index];
@@ -445,10 +293,29 @@ function actuallySaveRow(index, newQty) {
     console.error("Błąd zapisu:", err);
   });
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+  const yesBtn = document.getElementById("modal-yes");
+  const noBtn = document.getElementById("modal-no");
+
+  if (yesBtn && noBtn) {
+    yesBtn.addEventListener("click", () => {
+      document.getElementById("confirm-modal").style.display = "none";
+      actuallySaveRow(pendingIndex, pendingQty);
+    });
+
+    noBtn.addEventListener("click", () => {
+      document.getElementById("confirm-modal").style.display = "none";
+      pendingIndex = null;
+      pendingQty = null;
+    });
+  }
+
+  loadData();
+});
 </script>
 </div>
 <audio id="success-sound" preload="auto" src="https://www.soundjay.com/buttons/sounds/button-3.mp3"></audio>
-
 <div id="confirm-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:2000; align-items:center; justify-content:center;">
 <div style="background:white; padding:20px 30px; border-radius:12px; max-width:400px; width:90%; text-align:center; box-shadow: 0 0 20px rgba(0,0,0,0.3);">
 <p style="font-weight:bold; font-size:16px; color:#333;">Czy na pewno chcesz zatwierdzić tę zmianę?</p>
