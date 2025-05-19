@@ -221,7 +221,6 @@ body.dark input, body.dark button {
 <i class="fa fa-bell fa-shake" style="font-size: 18px;"></i>
 <span id="alert-text">Alert</span>
 </div>
-
 <img alt="LCDR Logo" src="logoinv.png" style="max-width: 240px; margin-bottom: 20px; filter: drop-shadow(0 0 10px rgba(0,0,0,0.5));"/><h1>OC INWENTARYZACJA</h1><h2 id="slogan" style="margin-top: -10px; font-weight: 400; color: #b0bec5;">Zawsze aktualne dane</h2>
 <input id="search" oninput="filterTable()" placeholder="🔍 Filtruj po MODEL lub PN..." type="text"/><button id="export-csv" style="margin: 10px; padding: 10px 20px; background: #1e88e5; color: white; border: none; border-radius: 12px; cursor: pointer;">⬇️ Eksportuj do CSV</button>
 <button class="refresh-btn" onclick="loadData()">🔄 Odśwież dane</button>
@@ -311,6 +310,7 @@ body.dark input, body.dark button {
           body: JSON.stringify(updated)
         });
         showToast();
+      document.getElementById('success-sound').play();
       highlightRow(index);
       } catch (err) {
         console.error("Błąd zapisu:", err);
@@ -383,5 +383,7 @@ function highlightRow(index) {
 }
 </script>
 </div>
+
+<audio id="success-sound" preload="auto" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_7d0b5b3f00.mp3?filename=correct-2-46134.mp3"></audio>
 </body>
 </html>
