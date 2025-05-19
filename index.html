@@ -38,17 +38,20 @@
     }
     button {
       padding: 5px 10px;
-      margin: 0 2px;
+      margin: 5px;
       font-size: 14px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
     }
-    #export {
+    #export, #save {
       margin-top: 20px;
       padding: 10px 20px;
       background-color: #388e3c;
       color: white;
-      border: none;
-      cursor: pointer;
-      border-radius: 4px;
+    }
+    #save {
+      background-color: #1565c0;
     }
   </style>
 </head>
@@ -75,11 +78,13 @@
       <tbody></tbody>
     </table>
     <button id="export">📤 Eksport do CSV</button>
+    <button id="save">💾 Zapisz zmiany</button>
   </div>
 
   <script>
     const pin = "6615";
     const apiUrl = "https://wispy-waterfall-e267.lukaszarmiajotpe.workers.dev/";
+    let currentData = [];
 
     function checkPin() {
       const input = document.getElementById('pin-input').value;
@@ -95,15 +100,16 @@
     async function loadData() {
       const res = await fetch(apiUrl);
       const json = await res.json();
+      currentData = json;
       const tbody = document.querySelector("#data-table tbody");
       tbody.innerHTML = "";
       json.forEach((row, index) => {
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td>${row.VENDOR || ""}</td>
-          <td>${row.MODEL || ""}</td>
-          <td>${row.PN || ""}</td>
-          <td id="qty-${index}">${row.Ilość || 0}</td>
+          <td>${row["VENDOR"] || ""}</td>
+          <td>${row["MODEL"] || ""}</td>
+          <td>${row["PN"] || ""}</td>
+          <td id="qty-${index}">${row["ILOŚĆ"] || 0}</td>
           <td>
             <button onclick="changeQty(${index}, 1)">+</button>
             <button onclick="changeQty(${index}, -1)">-</button>
@@ -134,6 +140,34 @@
       a.download = "inwentaryzacja.csv";
       a.click();
       URL.revokeObjectURL(url);
+    });
+
+    document.getElementById("save").addEventListener("click", async () => {
+      const rows = document.querySelectorAll("#data-table tbody tr");
+      const updated = [];
+      rows.forEach((row, index) => {
+        const cells = row.querySelectorAll("td");
+        updated.push({
+          VENDOR: cells[0].textContent,
+          MODEL: cells[1].textContent,
+          PN: cells[2].textContent,
+          ILOŚĆ: parseInt(cells[3].textContent),
+          updated: new Date().toLocaleString()
+        });
+      });
+      try {
+        const res = await fetch(apiUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(updated)
+        });
+        const text = await res.text();
+        alert("✅ Dane zapisane: " + text);
+      } catch (err) {
+        alert("❌ Błąd zapisu: " + err);
+      }
     });
   </script>
 </body>
