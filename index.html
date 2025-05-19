@@ -242,8 +242,7 @@ body.dark input, body.dark button {
 </table>
 <div id="summary" style="margin-top: 20px; font-weight: bold; color: #2e7d32;"></div>
 <div id="toast">✅ Zapisano zmiany</div>
-<script>
-    const apiUrl = "https://wispy-waterfall-e267.lukaszarmiajotpe.workers.dev/";
+<script>const apiUrl = "https://wispy-waterfall-e267.lukaszarmiajotpe.workers.dev/";
     let currentData = [];
 
     async function loadData() {
@@ -425,11 +424,9 @@ document.addEventListener("DOMContentLoaded", () => {
     pendingIndex = null;
     pendingQty = null;
   });
-});
-</script>
+});</script>
 </div>
 <audio id="success-sound" preload="auto" src="https://www.soundjay.com/buttons/sounds/button-3.mp3"></audio>
-
 <div id="confirm-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:2000; align-items:center; justify-content:center;">
 <div style="background:white; padding:20px 30px; border-radius:12px; max-width:400px; width:90%; text-align:center; box-shadow: 0 0 20px rgba(0,0,0,0.3);">
 <p id="confirm-message" style="font-weight:bold; font-size:16px; color:#333;">Czy na pewno chcesz zatwierdzić tę zmianę?</p>
