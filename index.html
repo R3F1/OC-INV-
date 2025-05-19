@@ -263,20 +263,18 @@ body.dark input, body.dark button {
         tr.className = qty == 0 ? 'no-stock' : qty < 5 ? 'low-stock' : '';
 
         tr.innerHTML = `
-html += `
-<td>${row["VENDOR"] || ""}</td>
-<td>${row["MODEL"] || ""}</td>
-<td>${row["PN"] || ""}</td>
-<td id="qty-${index}">${qty}</td>
-<td>
-<div class="qty-controls">
-<button onclick="changeQty(${index}, -1)"><i class='fa fa-minus'></i></button>
-<button onclick="changeQty(${index}, 1)"><i class='fa fa-plus'></i></button>
-<input type="number" id="input-${index}" value="${qty}" />
-<button class="confirm-btn" onclick="setQty(${index})"><i class='fa fa-check'></i></button>
-</div>
-</td>`
-`;
+          <td>${row["VENDOR"] || ""}</td>
+          <td>${row["MODEL"] || ""}</td>
+          <td>${row["PN"] || ""}</td>
+          <td id="qty-${index}">${qty}</td>
+          <td>
+            <div class="qty-controls">
+              <button onclick="changeQty(${index}, -1)"><i class='fa fa-minus'></i></button>
+              <button onclick="changeQty(${index}, 1)"><i class='fa fa-plus'></i></button>
+              <input type="number" id="input-${index}" value="${qty}" />
+              <button class="confirm-btn" onclick="setQty(${index})"><i class='fa fa-check'></i></button>
+            </div>
+          </td>`;
         tbody.appendChild(tr);
       });
 
@@ -293,16 +291,13 @@ html += `
     }
 
     function setQty(index) {
-  confirmQtyChange(index);
-}
-
-function confirmQtyChange(index) {
   const val = parseInt(document.getElementById(`input-${index}`).value);
   document.getElementById('confirm-message').textContent = `Czy na pewno chcesz zatwierdzić zmianę ilości na ${val}?`;
   pendingIndex = index;
   pendingQty = val;
   document.getElementById('confirm-modal').style.display = 'flex';
 }
+
       const input = document.getElementById(`input-${index}`);
       let val = parseInt(input.value);
       val = Math.max(0, isNaN(val) ? 0 : val);
@@ -427,9 +422,11 @@ document.addEventListener("DOMContentLoaded", () => {
     pendingIndex = null;
     pendingQty = null;
   });
-});</script>
+});
+</script>
 </div>
 <audio id="success-sound" preload="auto" src="https://www.soundjay.com/buttons/sounds/button-3.mp3"></audio>
+
 <div id="confirm-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:2000; align-items:center; justify-content:center;">
 <div style="background:white; padding:20px 30px; border-radius:12px; max-width:400px; width:90%; text-align:center; box-shadow: 0 0 20px rgba(0,0,0,0.3);">
 <p id="confirm-message" style="font-weight:bold; font-size:16px; color:#333;">Czy na pewno chcesz zatwierdzić tę zmianę?</p>
