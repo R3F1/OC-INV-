@@ -18,12 +18,24 @@
       font-size: 32px;
       font-weight: bold;
     }
+    .search-container {
+      width: 90%;
+      margin: 20px auto;
+      text-align: center;
+    }
+    .search-container input {
+      padding: 10px;
+      font-size: 16px;
+      width: 300px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
     table {
       width: 90%;
-      margin: 30px auto;
+      margin: 20px auto;
       border-collapse: collapse;
-      box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
       background-color: white;
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
     }
     th, td {
       padding: 12px;
@@ -47,17 +59,28 @@
       background-color: #f44336;
       color: white;
     }
+    input.qty-input {
+      width: 60px;
+      text-align: center;
+      padding: 6px;
+      font-size: 15px;
+    }
   </style>
 </head>
 <body>
   <header>OC INWENTARYZACJA</header>
 
+  <div class="search-container">
+    <input type="text" id="search" placeholder="Szukaj modelu...">
+  </div>
+
   <table id="inventory-table">
     <thead>
       <tr>
+        <th>VENDOR</th>
         <th>MODEL</th>
-        <th>OPEN CELL</th>
         <th>PN</th>
+        <th>ILOŚĆ</th>
         <th>AKCJE</th>
       </tr>
     </thead>
@@ -68,35 +91,50 @@
 
   <script>
     const sheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQY8Ig67cQK39ZgmcZiTJDh9Rk__EWkkvgYnI6Oc6kWkRl-PAiIQoHphxBhCM2fMwGYtbqxxRYFT7l2/pub?output=csv';
+    const tableBody = document.querySelector('#inventory-table tbody');
 
     fetch(sheetURL)
       .then(res => res.text())
       .then(csv => {
         const rows = csv.split('\n').map(row => row.split(','));
-        const tbody = document.querySelector('#inventory-table tbody');
-
         for (let i = 1; i < rows.length; i++) {
-          const [model, openCell, pn] = rows[i];
+          const [vendor, model, pn] = rows[i];
           if (!model) continue;
 
+          const quantityId = `qty-${i}`;
           const tr = document.createElement('tr');
           tr.innerHTML = `
-            <td>${model}</td>
-            <td>${openCell}</td>
+            <td>${vendor}</td>
+            <td class="model">${model}</td>
             <td>${pn}</td>
             <td>
-              <button class="add" onclick="adjust('${model}', 1)">➕</button>
-              <button class="remove" onclick="adjust('${model}', -1)">➖</button>
+              <input type="number" class="qty-input" id="${quantityId}" value="0" min="0">
+            </td>
+            <td>
+              <button class="add" onclick="adjustQty('${quantityId}', 1)">➕</button>
+              <button class="remove" onclick="adjustQty('${quantityId}', -1)">➖</button>
             </td>
           `;
-          tbody.appendChild(tr);
+          tableBody.appendChild(tr);
         }
       });
 
-    function adjust(model, change) {
-      alert(`Zmieniono stan dla modelu: ${model} o ${change > 0 ? 'dodanie' : 'usunięcie'} 1 szt.`);
-      // Tu można dodać zapis do localStorage lub integrację z Google Apps Script
+    function adjustQty(id, change) {
+      const input = document.getElementById(id);
+      let current = parseInt(input.value) || 0;
+      current += change;
+      input.value = Math.max(0, current); // minimalnie 0
     }
+
+    document.getElementById('search').addEventListener('input', function () {
+      const filter = this.value.toLowerCase();
+      const rows = tableBody.getElementsByTagName('tr');
+      for (let row of rows) {
+        const modelCell = row.querySelector('.model');
+        const modelText = modelCell.textContent.toLowerCase();
+        row.style.display = modelText.includes(filter) ? '' : 'none';
+      }
+    });
   </script>
 </body>
 </html>
