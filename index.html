@@ -214,6 +214,11 @@ body.dark input, body.dark button {
 .fa-shake {
   animation: fa-shake 1s infinite;
 }
+
+.confirm-btn.hidden {
+  display: none;
+}
+
 </style>
 </head>
 <body><button id="theme-toggle" style="position: fixed; top: 20px; right: 20px; z-index: 1000; background: #1565c0; color: white; border: none; padding: 10px; border-radius: 50%; font-size: 20px; cursor: pointer;">🌙</button>
@@ -272,7 +277,7 @@ body.dark input, body.dark button {
               <button onclick="changeQty(${index}, -1)"><i class='fa fa-minus'></i></button>
               <button onclick="changeQty(${index}, 1)"><i class='fa fa-plus'></i></button>
               <input type="number" id="input-${index}" value="${qty}" />
-              <button class="confirm-btn" onclick="setQty(${index})"><i class='fa fa-check'></i></button>
+              <button class="confirm-btn hidden" onclick="setQty(${index})"><i class='fa fa-check'></i></button>
             </div>
           </td>`;
         tbody.appendChild(tr);
@@ -362,7 +367,19 @@ function setQty(index) {
   document.getElementById("summary").textContent = `📦 Razem sztuk: ${total} | Unikalnych modeli: ${uniqueModels}`;
     }
 
-    loadData();
+    
+function toggleConfirm(index) {
+  const input = document.getElementById(`input-${index}`);
+  const button = input.parentElement.querySelector(".confirm-btn");
+  const val = parseInt(input.value);
+  if (!isNaN(val) && val !== 0) {
+    button.classList.remove("hidden");
+  } else {
+    button.classList.add("hidden");
+  }
+}
+
+loadData();
   
 // 🌙 Toggle Dark Mode
 document.getElementById('theme-toggle').addEventListener('click', () => {
