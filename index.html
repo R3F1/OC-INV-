@@ -1,11 +1,9 @@
-
 <!DOCTYPE html>
-
 <html lang="pl">
 <head>
-<meta charset="utf-8"/>
-<title>OC INWENTARYZACJA — Proponowana Ilość</title>
-<style>
+  <meta charset="UTF-8">
+  <title>OC INWENTARYZACJA — Proponowana Ilość</title>
+  <style>
     body {
       font-family: 'Segoe UI', sans-serif;
       background: linear-gradient(to right, #f0f4f8, #dbeafe);
@@ -45,10 +43,19 @@
       background: #e3f2fd;
       font-size: 14px;
     }
+    .proposed-box.subtract {
+      border: 1px solid #f44336;
+      background: #ffebee;
+    }
     .proposed-box span {
       font-weight: bold;
       font-size: 18px;
+    }
+    .proposed-box.add span {
       color: #0d47a1;
+    }
+    .proposed-box.subtract span {
+      color: #b71c1c;
     }
     button {
       border: none;
@@ -67,198 +74,133 @@
       50% { background-color: #bbdefb; }
       100% { background-color: #e3f2fd; }
     }
-    .pulse {
-      animation: pulse 0.6s ease;
+    @keyframes pulse-red {
+      0% { background-color: #ffebee; }
+      50% { background-color: #ffcdd2; }
+      100% { background-color: #ffebee; }
     }
-  
-.proposed-box {
-  padding: 6px 10px;
-  margin-top: 6px;
-  border-radius: 6px;
-  font-size: 14px;
-  border: 1px solid transparent;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  font-weight: bold;
-}
-.proposed-box.add {
-  background: #e8f5e9;
-  border: 1px solid #4caf50;
-  color: #2e7d32;
-}
-.proposed-box.sub {
-  background: #ffebee;
-  border: 1px solid #c62828;
-  color: #c62828;
-}
-.proposed-box-icon {
-  display: inline-block;
-  width: 14px;
-  height: 14px;
-  border-radius: 2px;
-}
-.proposed-box.add .proposed-box-icon {
-  background: #4caf50;
-}
-.proposed-box.sub .proposed-box-icon {
-  background: #c62828;
-}
-</style>
+    .pulse { animation: pulse 0.6s ease; }
+    .pulse-red { animation: pulse-red 0.6s ease; }
+  </style>
 </head>
 <body>
-<h1>OC INWENTARYZACJA — Proponowana Ilość</h1>
-<table>
-<thead>
-<tr>
-<th>MODEL</th>
-<th>ILOŚĆ</th>
-<th>EDYCJA</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>SM-A4</td>
-<td>
-<div class="qty-cell" id="qty-0">367</div>
-<div class="proposed-box" id="proposed-wrapper-0">
+  <h1>OC INWENTARYZACJA — Proponowana Ilość</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>MODEL</th>
+        <th>ILOŚĆ</th>
+        <th>EDYCJA</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>SM-A4</td>
+        <td>
+          <div class="qty-cell" id="qty-0">367</div>
+          <div class="proposed-box add" id="proposed-wrapper-add-0">
             🟦 <strong>DO DODANIA:</strong>
-<span id="proposed-0">0</span>
-</div>
-</td>
-<td>
-<button class="minus" onclick="changeQty(0, -1)">➖</button>
-<button class="plus" onclick="changeQty(0, 1)">➕</button>
-<button class="confirm" onclick="setQty(0)">✔️</button>
-<button class="reset" onclick="resetQty(0)">✖️</button>
-</td>
-</tr>
-<tr>
-<td>F70</td>
-<td>
-<div class="qty-cell" id="qty-1">34</div>
-<div class="proposed-box" id="proposed-wrapper-1">
+            <span id="proposed-add-0">0</span>
+          </div>
+          <div class="proposed-box subtract" id="proposed-wrapper-subtract-0">
+            🟥 <strong>DO ODJĘCIA:</strong>
+            <span id="proposed-subtract-0">0</span>
+          </div>
+        </td>
+        <td>
+          <button class="minus" onclick="changeQty(0, -1)">➖</button>
+          <button class="plus" onclick="changeQty(0, 1)">➕</button>
+          <button class="confirm" onclick="setQty(0)">✔️</button>
+          <button class="reset" onclick="resetQty(0)">✖️</button>
+        </td>
+      </tr>
+      <tr>
+        <td>F70</td>
+        <td>
+          <div class="qty-cell" id="qty-1">34</div>
+          <div class="proposed-box add" id="proposed-wrapper-add-1">
             🟦 <strong>DO DODANIA:</strong>
-<span id="proposed-1">0</span>
-</div>
-</td>
-<td>
-<button class="minus" onclick="changeQty(1, -1)">➖</button>
-<button class="plus" onclick="changeQty(1, 1)">➕</button>
-<button class="confirm" onclick="setQty(1)">✔️</button>
-<button class="reset" onclick="resetQty(1)">✖️</button>
-</td>
-</tr>
-<tr>
-<td>QVN01</td>
-<td>
-<div class="qty-cell" id="qty-2">124</div>
-<div class="proposed-box" id="proposed-wrapper-2">
+            <span id="proposed-add-1">0</span>
+          </div>
+          <div class="proposed-box subtract" id="proposed-wrapper-subtract-1">
+            🟥 <strong>DO ODJĘCIA:</strong>
+            <span id="proposed-subtract-1">0</span>
+          </div>
+        </td>
+        <td>
+          <button class="minus" onclick="changeQty(1, -1)">➖</button>
+          <button class="plus" onclick="changeQty(1, 1)">➕</button>
+          <button class="confirm" onclick="setQty(1)">✔️</button>
+          <button class="reset" onclick="resetQty(1)">✖️</button>
+        </td>
+      </tr>
+      <tr>
+        <td>QVN01</td>
+        <td>
+          <div class="qty-cell" id="qty-2">124</div>
+          <div class="proposed-box add" id="proposed-wrapper-add-2">
             🟦 <strong>DO DODANIA:</strong>
-<span id="proposed-2">0</span>
-</div>
-</td>
-<td>
-<button class="minus" onclick="changeQty(2, -1)">➖</button>
-<button class="plus" onclick="changeQty(2, 1)">➕</button>
-<button class="confirm" onclick="setQty(2)">✔️</button>
-<button class="reset" onclick="resetQty(2)">✖️</button>
-</td>
-</tr>
-</tbody>
-</table>
-<script>
-    const proposedQtyMap = {};
+            <span id="proposed-add-2">0</span>
+          </div>
+          <div class="proposed-box subtract" id="proposed-wrapper-subtract-2">
+            🟥 <strong>DO ODJĘCIA:</strong>
+            <span id="proposed-subtract-2">0</span>
+          </div>
+        </td>
+        <td>
+          <button class="minus" onclick="changeQty(2, -1)">➖</button>
+          <button class="plus" onclick="changeQty(2, 1)">➕</button>
+          <button class="confirm" onclick="setQty(2)">✔️</button>
+          <button class="reset" onclick="resetQty(2)">✖️</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <script>
+    const proposedAddQtyMap = {};
+    const proposedSubtractQtyMap = {};
 
     function changeQty(index, delta) {
-      if (!proposedQtyMap[index]) proposedQtyMap[index] = 0;
-      proposedQtyMap[index] += delta;
-      if (proposedQtyMap[index] < 0) proposedQtyMap[index] = 0;
-      const el = document.getElementById(`proposed-${index}`);
+      if (delta > 0) {
+        proposedAddQtyMap[index] = (proposedAddQtyMap[index] || 0) + delta;
+        updateDisplay(index, 'add', proposedAddQtyMap[index]);
+      } else {
+        proposedSubtractQtyMap[index] = (proposedSubtractQtyMap[index] || 0) + Math.abs(delta);
+        updateDisplay(index, 'subtract', proposedSubtractQtyMap[index]);
+      }
+    }
+
+    function updateDisplay(index, type, value) {
+      const el = document.getElementById(`proposed-${type}-${index}`);
       if (el) {
-        el.textContent = proposedQtyMap[index];
-        const box = document.getElementById(`proposed-wrapper-${index}`);
+        el.textContent = value;
+        const box = document.getElementById(`proposed-wrapper-${type}-${index}`);
         if (box) {
-          box.classList.add("pulse");
-          setTimeout(() => box.classList.remove("pulse"), 600);
+          box.classList.remove("pulse", "pulse-red");
+          void box.offsetWidth; // force reflow
+          box.classList.add(type === 'add' ? "pulse" : "pulse-red");
+          setTimeout(() => box.classList.remove(type === 'add' ? "pulse" : "pulse-red"), 600);
         }
       }
     }
 
     function resetQty(index) {
-      proposedQtyMap[index] = 0;
-      const el = document.getElementById(`proposed-${index}`);
-      if (el) el.textContent = "0";
+      proposedAddQtyMap[index] = 0;
+      proposedSubtractQtyMap[index] = 0;
+      updateDisplay(index, 'add', 0);
+      updateDisplay(index, 'subtract', 0);
     }
 
-    
-function setQty(index) {
-  const add = proposedQtyMap[index] || 0;
-  if (add === 0) return;
-  const modalText = add > 0
-    ? `❗ Czy na pewno chcesz dodać <span id="modal-qty">${add}</span> sztuk?`
-    : `❗ Czy na pewno chcesz odjąć <span id="modal-qty">${Math.abs(add)}</span> sztuk?`;
-  document.querySelector("#confirm-modal p").innerHTML = modalText;
-  document.getElementById("confirm-modal").style.display = "flex";
-  pendingIndex = index;
-  pendingAddQty = add;
-}
-            `);
+    function setQty(index) {
+      const qtyEl = document.getElementById(`qty-${index}`);
       const current = parseInt(qtyEl.textContent);
-      const add = proposedQtyMap[index] || 0;
-      const finalQty = current + add;
+      const add = proposedAddQtyMap[index] || 0;
+      const subtract = proposedSubtractQtyMap[index] || 0;
+      const finalQty = current + add - subtract;
       qtyEl.textContent = finalQty;
-      proposedQtyMap[index] = 0;
-      const el = document.getElementById(`proposed-${index}`);
-      if (el) el.textContent = "0";
+      resetQty(index);
     }
   </script>
-<div id="confirm-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
-<div style="background:white; padding:20px 30px; border-radius:10px; text-align:center; box-shadow:0 0 10px rgba(0,0,0,0.3);">
-<p style="font-size:16px; font-weight:bold; color:#e65100;">❗ Czy na pewno chcesz dodać <span id="modal-qty">X</span> sztuk?</p>
-<div style="margin-top: 15px;">
-<button id="modal-confirm" style="background:#4caf50; color:white; padding:6px 14px; border:none; border-radius:6px; margin-right:10px;">Tak</button>
-<button id="modal-cancel" style="background:#f44336; color:white; padding:6px 14px; border:none; border-radius:6px;">Anuluj</button>
-</div>
-</div>
-</div>
-<script>
-  let pendingIndex = null;
-  let pendingAddQty = 0;
-
-  document.getElementById("modal-confirm").addEventListener("click", () => {
-    document.getElementById("confirm-modal").style.display = "none";
-    const qtyEl = document.getElementById(`qty-${pendingIndex}`);
-    const current = parseInt(qtyEl.textContent);
-    const finalQty = current + pendingAddQty;
-    qtyEl.textContent = finalQty;
-    proposedQtyMap[pendingIndex] = 0;
-    const el = document.getElementById(`proposed-${pendingIndex}`);
-    if (el) el.textContent = "0";
-    pendingIndex = null;
-    pendingAddQty = 0;
-  });
-
-  document.getElementById("modal-cancel").addEventListener("click", () => {
-    document.getElementById("confirm-modal").style.display = "none";
-    pendingIndex = null;
-    pendingAddQty = 0;
-  });
-
-  
-function setQty(index) {
-  const add = proposedQtyMap[index] || 0;
-  if (add === 0) return;
-  const modalText = add > 0
-    ? `❗ Czy na pewno chcesz dodać <span id="modal-qty">${add}</span> sztuk?`
-    : `❗ Czy na pewno chcesz odjąć <span id="modal-qty">${Math.abs(add)}</span> sztuk?`;
-  document.querySelector("#confirm-modal p").innerHTML = modalText;
-  document.getElementById("confirm-modal").style.display = "flex";
-  pendingIndex = index;
-  pendingAddQty = add;
-}
-            
-</script>
 </body>
 </html>
