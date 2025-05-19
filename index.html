@@ -315,9 +315,7 @@ async function loadData() {
     document.getElementById("debug-log").textContent = "[debug] BŁĄD: " + err.message;
   }
 }
-
-
-    function renderTable(data) {
+function renderTable(data) {
       const tbody = document.querySelector("#data-table tbody");
       tbody.innerHTML = "";
 
