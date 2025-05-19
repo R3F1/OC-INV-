@@ -2,240 +2,96 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8">
-  <title>OC INWENTARYZACJA</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <script src="https://apis.google.com/js/api.js"></script>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <title>Dodaj dane do arkusza Google</title>
   <style>
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #dfe9f3, #ffffff);
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #e0f7fa, #e1f5fe);
       margin: 0;
-      padding: 0;
-      animation: fadeIn 1s ease-in;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-    header {
-      background: linear-gradient(to right, #1a73e8, #4285f4);
-      color: white;
-      padding: 25px;
-      text-align: center;
-      font-size: 34px;
-      font-weight: bold;
+      padding: 40px;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
-      gap: 15px;
     }
-    header i {
-      font-size: 30px;
+    h1 {
+      color: #00796b;
     }
-    .toolbar {
-      width: 95%;
-      margin: 20px auto;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      justify-content: center;
-      animation: slideIn 0.8s ease-out;
+    form {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 400px;
     }
-    @keyframes slideIn {
-      from { transform: translateY(-20px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
     }
-    .toolbar input {
+    input {
+      width: 100%;
       padding: 10px;
-      font-size: 16px;
-      width: 300px;
+      margin-top: 5px;
       border: 1px solid #ccc;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    .toolbar button {
-      padding: 10px 18px;
+      border-radius: 6px;
       font-size: 16px;
-      background-color: #1a73e8;
+    }
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #00796b;
       color: white;
       border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background-color 0.3s;
-    }
-    .toolbar button:hover {
-      background-color: #1558c0;
-    }
-    table {
-      width: 95%;
-      margin: 30px auto;
-      border-collapse: collapse;
-      background-color: white;
-      box-shadow: 0 0 14px rgba(0, 0, 0, 0.08);
-      border-radius: 10px;
-      overflow: hidden;
-      animation: fadeIn 1.2s ease-in;
-    }
-    th, td {
-      padding: 14px;
-      text-align: center;
-      border-bottom: 1px solid #eee;
-    }
-    th {
-      background: #f8f9fa;
-    }
-    .add {
-      background-color: #4caf50;
-    }
-    .remove {
-      background-color: #f44336;
-    }
-    input.qty-input {
-      width: 70px;
-      text-align: center;
-      padding: 8px;
-      font-size: 15px;
       border-radius: 6px;
-      border: 1px solid #ccc;
+      cursor: pointer;
+    }
+    .success {
+      margin-top: 20px;
+      color: green;
+    }
+    .error {
+      margin-top: 20px;
+      color: red;
     }
   </style>
 </head>
 <body>
-  <header>
-    <i class="fas fa-boxes-stacked"></i>
-    OC INWENTARYZACJA
-  </header>
+  <h1>Dodaj dane do arkusza Google</h1>
+  <form id="dataForm">
+    <label for="vendor">Vendor:</label>
+    <input type="text" id="vendor" name="vendor" required>
 
-  <div class="toolbar">
-    <input type="text" id="search" placeholder="🔍 Szukaj modelu...">
-    <button onclick="exportToExcel()"><i class="fas fa-file-excel"></i> Export do Excela</button>
-    <button onclick="resetQuantities()"><i class="fas fa-rotate-left"></i> Reset ilości</button>
-    <button onclick="saveToSheet()"><i class="fas fa-cloud-upload-alt"></i> Zapisz do Google Sheets</button>
-    <button onclick="location.reload()"><i class="fas fa-download"></i> Import danych z arkusza</button>
-  </div>
+    <label for="model">Model:</label>
+    <input type="text" id="model" name="model" required>
 
-  <table id="inventory-table">
-    <thead>
-      <tr>
-        <th>VENDOR</th>
-        <th>MODEL</th>
-        <th>PN</th>
-        <th>ILOŚĆ</th>
-        <th>OSTATNIA ZMIANA</th>
-        <th>AKCJE</th>
-      </tr>
-    </thead>
-    <tbody>
-      <!-- Dynamic rows -->
-    </tbody>
-  </table>
+    <label for="pn">PN:</label>
+    <input type="text" id="pn" name="pn" required>
+
+    <label for="qty">Ilość:</label>
+    <input type="number" id="qty" name="qty" required min="0">
+
+    <button type="submit">📤 Wyślij dane</button>
+    <div id="response" class="success" style="display:none;"></div>
+  </form>
 
   <script>
-    const sheetURL = 'https://docs.google.com/spreadsheets/d/16ELRHLUGjbsyOmg4d22dRq2emS3YHEKEg2fLIkaBAYI/gviz/tq?tqx=out:csv&sheet=DANE%20DO%20STRONY';
-    const tableBody = document.querySelector('#inventory-table tbody');
+    const form = document.getElementById('dataForm');
+    const responseBox = document.getElementById('response');
 
-    function getLocalData(key) {
-      return JSON.parse(localStorage.getItem(`item-${key}`)) || { qty: 0, updated: '' };
-    }
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
 
-    function setLocalData(key, qty) {
       const now = new Date().toLocaleString();
-      localStorage.setItem(`item-${key}`, JSON.stringify({ qty, updated: now }));
-      document.getElementById(`update-${key}`).textContent = now;
-    }
 
-    fetch(sheetURL)
-      .then(res => res.text())
-      .then(csv => {
-        const rows = csv.split('\n').map(r => r.split(','));
-        for (let i = 1; i < rows.length; i++) {
-          const [vendor, model, pn] = rows[i];
-          if (!model) continue;
-
-          const key = model.trim().replace(/\s+/g, '_') + '_' + i;
-          const data = getLocalData(key);
-
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td>${vendor}</td>
-            <td class="model">${model}</td>
-            <td>${pn}</td>
-            <td><input type="number" class="qty-input" id="qty-${key}" value="${data.qty}" min="0" onchange="onQtyChange('${key}')"></td>
-            <td id="update-${key}">${data.updated}</td>
-            <td>
-              <button class="add" onclick="adjustQty('${key}', 1)">➕</button>
-              <button class="remove" onclick="adjustQty('${key}', -1)">➖</button>
-            </td>`;
-          tableBody.appendChild(tr);
-        }
-      });
-
-    function adjustQty(key, change) {
-      const input = document.getElementById(`qty-${key}`);
-      let val = parseInt(input.value) || 0;
-      val = Math.max(0, val + change);
-      input.value = val;
-      setLocalData(key, val);
-    }
-
-    function onQtyChange(key) {
-      const val = parseInt(document.getElementById(`qty-${key}`).value) || 0;
-      setLocalData(key, val);
-    }
-
-    document.getElementById('search').addEventListener('input', function () {
-      const val = this.value.toLowerCase();
-      const rows = tableBody.querySelectorAll('tr');
-      rows.forEach(row => {
-        const model = row.querySelector('.model').textContent.toLowerCase();
-        row.style.display = model.includes(val) ? '' : 'none';
-      });
-    });
-
-    function exportToExcel() {
-      const wb = XLSX.utils.book_new();
-      const ws_data = [["VENDOR", "MODEL", "PN", "ILOŚĆ", "OSTATNIA ZMIANA"]];
-      const rows = document.querySelectorAll('#inventory-table tbody tr');
-
-      rows.forEach(row => {
-        const tds = row.querySelectorAll('td');
-        const vendor = tds[0].innerText;
-        const model = tds[1].innerText;
-        const pn = tds[2].innerText;
-        const qty = tds[3].querySelector('input').value;
-        const updated = tds[4].textContent;
-        ws_data.push([vendor, model, pn, qty, updated]);
-      });
-
-      const ws = XLSX.utils.aoa_to_sheet(ws_data);
-      XLSX.utils.book_append_sheet(wb, ws, "Inwentaryzacja");
-      XLSX.writeFile(wb, `OC_INWENTARYZACJA_${new Date().toISOString().slice(0,10)}.xlsx`);
-    }
-
-    function resetQuantities() {
-      if (!confirm("Na pewno chcesz wyzerować wszystkie ilości?")) return;
-      const rows = document.querySelectorAll('#inventory-table tbody tr');
-      rows.forEach(row => {
-        const input = row.querySelector('input.qty-input');
-        const key = input.id.replace('qty-', '');
-        input.value = 0;
-        setLocalData(key, 0);
-      });
-    }
-
-    function saveToSheet() {
-      const rows = document.querySelectorAll('#inventory-table tbody tr');
-      const data = [];
-      rows.forEach(row => {
-        const cells = row.querySelectorAll('td');
-        const vendor = cells[0].innerText;
-        const model = cells[1].innerText;
-        const pn = cells[2].innerText;
-        const qty = cells[3].querySelector('input').value;
-        const updated = cells[4].textContent;
-        data.push({ vendor, model, pn, qty, updated });
-      });
+      const data = [{
+        vendor: form.vendor.value,
+        model: form.model.value,
+        pn: form.pn.value,
+        qty: form.qty.value,
+        updated: now
+      }];
 
       fetch("https://script.google.com/macros/s/AKfycbx63ZWnJZ3IYX2Jw0F80tlp-uy-r0SQPue3bW0-SeXM4cJP6kTicw5HgLWWH2OkH-ng/exec", {
         method: "POST",
@@ -243,9 +99,18 @@
         headers: { "Content-Type": "application/json" }
       })
       .then(res => res.text())
-      .then(msg => alert("✅ Zapisano dane do Google Sheets."))
-      .catch(err => alert("❌ Błąd podczas zapisu: " + err));
-    }
+      .then(msg => {
+        responseBox.textContent = "✅ Dane zostały zapisane.";
+        responseBox.className = "success";
+        responseBox.style.display = "block";
+        form.reset();
+      })
+      .catch(err => {
+        responseBox.textContent = "❌ Błąd: " + err;
+        responseBox.className = "error";
+        responseBox.style.display = "block";
+      });
+    });
   </script>
 </body>
 </html>
