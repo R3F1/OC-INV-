@@ -487,8 +487,16 @@ document.getElementById('export-csv').addEventListener('click', () => {
 });
 
 // 🔄 Highlight changed cell
+
 function highlightRow(index) {
-  const row = document.getElementById(`qty-${index}`).closest('tr');
+  const row = document.getElementById(`row-${index}`);
+  row.classList.add("highlight");
+  setTimeout(() => {
+    row.classList.remove("highlight");
+    loadData(); // automatyczne pobranie danych po 1 sekundzie
+  }, 1000);
+}
+`).closest('tr');
   row.classList.add("highlight");
   setTimeout(() => row.classList.remove("highlight"), 1000);
 }
