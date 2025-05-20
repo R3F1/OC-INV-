@@ -266,7 +266,7 @@ body.dark input, body.dark button {
     const apiUrl = "https://wispy-waterfall-e267.lukaszarmiajotpe.workers.dev/";
     let currentData = [];
 
-    async function loadData() {
+    async async function loadData() {
       const res = await fetch(apiUrl);
       const json = await res.json();
       currentData = json;
@@ -448,17 +448,9 @@ function filterByScan() {
   }
 }
 
-
 function confirmScanAction() {
   if (scanIndex !== null) {
     const input = document.getElementById(`input-${scanIndex}`);
-    input.value = -1;
-    setQty(scanIndex);
-    document.getElementById("scan-modal").style.display = "none";
-    document.getElementById("scanner-bar").value = "";
-  }
-}
-`);
     input.value = -1;
     setQty(scanIndex);
     document.getElementById("scan-modal").style.display = "none";
