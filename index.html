@@ -454,12 +454,14 @@ function filterByScan() {
 }
 
 
-async function confirmScanAction() {
+function confirmScanAction() {
   if (scanIndex !== null) {
     const input = document.getElementById(`input-${scanIndex}`);
     input.value = -1;
-    await setQty(scanIndex);
-    await loadData();  // <-- nowe pobranie danych po zatwierdzeniu
+    setQty(scanIndex);
+    setTimeout(() => {
+      loadData();
+    }, 1000);  // lekki delay na zakończenie zapisu przed pobraniem
     document.getElementById("scan-modal").style.display = "none";
     document.getElementById("scanner-bar").value = "";
   }
