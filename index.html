@@ -422,12 +422,17 @@ function filterByScan() {
 }
 
 
-function resetScan() {
-  const input = document.getElementById("scanner-bar");
-  input.value = "";
+
+async function resetScan() {
+  const btn = event.currentTarget || null;
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Ładowanie...'; }
+  const input = document.getElementById('scanner-bar');
+  input.value = '';
   input.focus();
-  renderTable(currentData);
+  await loadData();            // pobierz najnowsze dane z Google Sheets
+  if (btn) { btn.disabled = false; btn.textContent = '📷 Nowy skan'; }
 }
+
 
 
 let scanBlocked = false;
