@@ -452,14 +452,15 @@ function filterByScan() {
 function confirmScanAction() {
   if (scanIndex !== null) {
     const qtyEl = document.getElementById(`qty-${scanIndex}`);
-    const input = document.getElementById(`input-${scanIndex}`);
     const currentQty = parseInt(qtyEl.textContent);
     const newQty = Math.max(0, currentQty - 1);
     qtyEl.textContent = newQty;
+    const input = document.getElementById(`input-${scanIndex}`);
     input.value = -1;
     setQty(scanIndex);
     document.getElementById("scan-modal").style.display = "none";
     document.getElementById("scanner-bar").value = "";
+    renderTable(currentData); // <- zachowane
   }
 }
 `);
