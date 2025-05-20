@@ -458,7 +458,13 @@ function confirmScanAction() {
     document.getElementById("scanner-bar").value = "";
   }
 }
-
+`);
+    input.value = -1;
+    setQty(scanIndex);
+    document.getElementById("scan-modal").style.display = "none";
+    document.getElementById("scanner-bar").value = "";
+    renderTable(currentData);
+  }
 }
 
 loadData();
@@ -516,7 +522,6 @@ document.getElementById("filter-zero").addEventListener("click", () => {
     <button onclick="confirmScanAction()" style="padding: 12px 24px; font-size: 18px; border: none; background: #c62828; color: white; border-radius: 12px; font-weight: bold; cursor: pointer;">✅ TAK, ODEJMIJ</button>
   </div>
 </div>
-<audio id="scan-sound" src="https://www.soundjay.com/buttons/sounds/beep-07.mp3" preload="auto"></audio>
 
 </body>
 </html>
