@@ -56,7 +56,7 @@
   </table>
 
   <script>
-    const apiUrl = "https://script.google.com/macros/s/AKfycbxe4JpyDE_TG2tjMHfZDnyrh6_Mr_SLHK_pvqf07gwNLde_rHDFGMEaBKnKt0tfj4SBUQ/exec";
+    const apiUrl = "https://wispy-waterfall-e267.lukaszarmiajotpe.workers.dev/";
     let currentData = [];
 
     async function loadData() {
@@ -97,20 +97,22 @@
     }
 
     function saveRow(index, value) {
-      const partNo = currentData[index]["Part No"];
-      const location = currentData[index]["Location"];
+      const payload = {
+        action: "update",
+        row: {
+          "Part No": currentData[index]["Part No"],
+          "Location": currentData[index]["Location"],
+          "Available": value
+        }
+      };
+
       fetch(apiUrl, {
         method: "POST",
-        body: JSON.stringify({
-          action: "update",
-          "Part No": partNo,
-          "Location": location,
-          "Available": value
-        }),
         headers: {
           "Content-Type": "application/json"
-        }
-      });
+        },
+        body: JSON.stringify(payload)
+      }).then(res => res.text()).then(console.log).catch(console.error);
     }
 
     loadData();
