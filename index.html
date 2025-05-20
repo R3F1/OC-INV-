@@ -453,9 +453,21 @@ function filterByScan() {
   }
 }
 
+
 function confirmScanAction() {
   if (scanIndex !== null) {
     const input = document.getElementById(`input-${scanIndex}`);
+    input.value = -1;
+    setQty(scanIndex);
+    highlightRow(scanIndex);
+    setTimeout(() => {
+      loadData(); // bezpieczne odświeżenie po 1s
+    }, 1000);
+    document.getElementById("scan-modal").style.display = "none";
+    document.getElementById("scanner-bar").value = "";
+  }
+}
+`);
     input.value = -1;
     setQty(scanIndex);
     document.getElementById("scan-modal").style.display = "none";
@@ -487,16 +499,8 @@ document.getElementById('export-csv').addEventListener('click', () => {
 });
 
 // 🔄 Highlight changed cell
-
 function highlightRow(index) {
-  const row = document.getElementById(`row-${index}`);
-  row.classList.add("highlight");
-  setTimeout(() => {
-    row.classList.remove("highlight");
-    loadData(); // automatyczne pobranie danych po 1 sekundzie
-  }, 1000);
-}
-`).closest('tr');
+  const row = document.getElementById(`qty-${index}`).closest('tr');
   row.classList.add("highlight");
   setTimeout(() => row.classList.remove("highlight"), 1000);
 }
