@@ -193,7 +193,7 @@
     }
 
     function setQty(index) {
-      const qtyEl = document.getElementById(`qty-${index}`);
+      const qtyEl = document.getElementById(`available-${index}`);
       const current = parseInt(qtyEl.textContent);
       const add = proposedAddQtyMap[index] || 0;
       const subtract = proposedSubtractQtyMap[index] || 0;
