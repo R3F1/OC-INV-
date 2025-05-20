@@ -238,8 +238,8 @@ body.dark input, body.dark button {
 <img alt="LCDR Logo" src="logoinv.png" style="max-width: 240px; margin-bottom: 20px; filter: drop-shadow(0 0 10px rgba(0,0,0,0.5));"/><h1>OC INWENTARYZACJA</h1>
 
 <div style="display: flex; gap: 12px; justify-content: center; align-items: center; flex-wrap: wrap;">
-  <input id="scanner-bar" type="text" placeholder="📷 Zeskanuj lub wpisz PN..." oninput="filterByScan()" style="padding: 10px 14px; font-size: 16px; border-radius: 12px; border: 2px solid #2196f3; width: 100%; max-width: 400px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);" autofocus />
-  <button onclick="resetScan()" style="padding: 12px 20px; font-size: 16px; font-weight: bold; border-radius: 12px; background-color: #1e88e5; color: white; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.2); cursor: pointer;">
+  <input id="scanner-bar" type="text" placeholder="📷 Zeskanuj lub wpisz PN..." oninput="filterByScan()" style="padding: 24px 28px; font-size: 36px; border-radius: 16px; border: 3px solid #2196f3; width: 100%; max-width: 600px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);" autofocus />
+  <button onclick="resetScan()" style="padding: 24px 32px; font-size: 32px; font-weight: bold; border-radius: 16px; background-color: #1e88e5; color: white; border: none; box-shadow: 0 6px 20px rgba(0,0,0,0.3); cursor: pointer;">
     📷 Nowy skan
   </button>
 </div>
@@ -290,7 +290,6 @@ body.dark input, body.dark button {
           <td>
             <div class="qty-controls">
               <button onclick="changeQty(${index}, -1)"><i class='fa fa-minus'></i></button>
-              <button onclick="changeQty(${index}, 1)"><i class='fa fa-plus'></i></button>
               <input type="number" id="input-${index}" value="0" />
               <button class="confirm-btn" onclick="confirmAndSet(${index})"><i class='fa fa-check'></i></button> <span style="font-size: 13px; color: #555;">wpisz wartość</span>
             </div>
@@ -356,7 +355,8 @@ function setQty(index) {
         row["MODEL"]?.toLowerCase().includes(search) ||
         row["PN"]?.toString().toLowerCase().includes(search)
       );
-      renderTable(filtered);
+      document.getElementById('scan-sound').play();
+  renderTable(filtered);
     }
 
     function showToast() {
@@ -417,6 +417,7 @@ function filterByScan() {
   const filtered = currentData.filter(row =>
     row["PN"]?.toString().toLowerCase().includes(scan)
   );
+  document.getElementById('scan-sound').play();
   renderTable(filtered);
 }
 
@@ -426,6 +427,34 @@ function resetScan() {
   input.value = "";
   input.focus();
   renderTable(currentData);
+}
+
+
+let scanBlocked = false;
+let scanIndex = null;
+
+function filterByScan() {
+  const scan = document.getElementById("scanner-bar").value.toLowerCase();
+  if (scanBlocked || !scan || scan.length < 2) return;
+  const match = currentData.findIndex(row => row["PN"]?.toString().toLowerCase().includes(scan));
+  if (match >= 0) {
+    scanIndex = match;
+    const model = currentData[match]["MODEL"] || "Nieznany";
+    document.getElementById("modal-model").textContent = model;
+    document.getElementById("scan-modal").style.display = "flex";
+    document.getElementById("scan-sound").play();
+    scanBlocked = true;
+    setTimeout(() => scanBlocked = false, 2000);
+  }
+}
+
+function confirmScanAction() {
+  if (scanIndex !== null) {
+    changeQty(scanIndex, -1);
+    document.getElementById("scan-modal").style.display = "none";
+    document.getElementById("scanner-bar").value = "";
+    renderTable(currentData);
+  }
 }
 
 loadData();
@@ -465,12 +494,26 @@ document.getElementById("filter-zero").addEventListener("click", () => {
   const filtered = zeroFilterActive
     ? currentData.filter(row => parseInt(row["ILOŚĆ"]) === 0)
     : currentData;
+  document.getElementById('scan-sound').play();
   renderTable(filtered);
   document.getElementById("filter-zero").textContent = zeroFilterActive ? "↩️ Pokaż wszystkie" : "🔍 Pokaż tylko zerowe";
 });
 </script>
 </div>
 <audio id="success-sound" preload="auto" src="https://www.soundjay.com/buttons/sounds/button-3.mp3"></audio>
+
+<audio id="scan-sound" src="https://www.soundjay.com/buttons/sounds/beep-07.mp3" preload="auto"></audio>
+
+
+<div id="scan-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
+  <div style="background:white; padding:30px 40px; border-radius:16px; text-align:center; box-shadow:0 8px 30px rgba(0,0,0,0.3); max-width:400px;">
+    <h2 id="modal-model" style="margin-bottom: 20px;">MODEL</h2>
+    <p style="margin-bottom: 20px;">Czy chcesz <strong>odjąć</strong> 1 sztukę?</p>
+    <button onclick="confirmScanAction()" style="padding: 12px 24px; font-size: 18px; border: none; background: #c62828; color: white; border-radius: 12px; font-weight: bold; cursor: pointer;">✅ TAK, ODEJMIJ</button>
+  </div>
+</div>
+<audio id="scan-sound" src="https://www.soundjay.com/buttons/sounds/beep-07.mp3" preload="auto"></audio>
+
 </body>
 </html>
 
