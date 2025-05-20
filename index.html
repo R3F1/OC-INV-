@@ -266,7 +266,7 @@ body.dark input, body.dark button {
     const apiUrl = "https://wispy-waterfall-e267.lukaszarmiajotpe.workers.dev/";
     let currentData = [];
 
-    async async function loadData() {
+    async function loadData() {
       const res = await fetch(apiUrl);
       const json = await res.json();
       currentData = json;
