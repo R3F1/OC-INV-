@@ -448,13 +448,17 @@ function filterByScan() {
   }
 }
 
+
 function confirmScanAction() {
   if (scanIndex !== null) {
-    changeQty(scanIndex, -1);
+    const input = document.getElementById(`input-${scanIndex}`);
+    input.value = -1;
+    setQty(scanIndex);
     document.getElementById("scan-modal").style.display = "none";
     document.getElementById("scanner-bar").value = "";
-    renderTable(currentData);
   }
+}
+
 }
 
 loadData();
