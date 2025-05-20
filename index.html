@@ -453,20 +453,9 @@ function filterByScan() {
   }
 }
 
-
 function confirmScanAction() {
   if (scanIndex !== null) {
     const input = document.getElementById(`input-${scanIndex}`);
-    input.value = -1;
-    setQty(scanIndex);
-    setTimeout(() => {
-      loadData();
-    }, 1000);  // lekki delay na zakończenie zapisu przed pobraniem
-    document.getElementById("scan-modal").style.display = "none";
-    document.getElementById("scanner-bar").value = "";
-  }
-}
-`);
     input.value = -1;
     setQty(scanIndex);
     document.getElementById("scan-modal").style.display = "none";
@@ -524,11 +513,13 @@ document.getElementById("filter-zero").addEventListener("click", () => {
 
 
 <div id="scan-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
-  <div style="background:white; padding:30px 40px; border-radius:16px; text-align:center; box-shadow:0 8px 30px rgba(0,0,0,0.3); max-width:400px;">
+  <div style="position: relative; background:white; padding:30px 40px; border-radius:16px; text-align:center; box-shadow:0 8px 30px rgba(0,0,0,0.3); max-width:400px;">
+    <button onclick="document.getElementById('scan-modal').style.display='none'" style="position:absolute; top:10px; right:14px; font-size:20px; font-weight:bold; background:none; border:none; cursor:pointer;">✖</button>
     <h2 id="modal-model" style="margin-bottom: 20px;">MODEL</h2>
     <p style="margin-bottom: 20px;">Czy chcesz <strong>odjąć</strong> 1 sztukę?</p>
     <button onclick="confirmScanAction()" style="padding: 12px 24px; font-size: 18px; border: none; background: #c62828; color: white; border-radius: 12px; font-weight: bold; cursor: pointer;">✅ TAK, ODEJMIJ</button>
   </div>
+</div>
 </div>
 
 </body>
