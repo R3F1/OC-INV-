@@ -453,9 +453,18 @@ function filterByScan() {
   }
 }
 
-function confirmScanAction() {
+
+async function confirmScanAction() {
   if (scanIndex !== null) {
     const input = document.getElementById(`input-${scanIndex}`);
+    input.value = -1;
+    await setQty(scanIndex);
+    await loadData();  // <-- nowe pobranie danych po zatwierdzeniu
+    document.getElementById("scan-modal").style.display = "none";
+    document.getElementById("scanner-bar").value = "";
+  }
+}
+`);
     input.value = -1;
     setQty(scanIndex);
     document.getElementById("scan-modal").style.display = "none";
