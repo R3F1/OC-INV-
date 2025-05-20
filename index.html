@@ -235,7 +235,10 @@ body.dark input, body.dark button {
   🔍 Pokaż tylko zerowe
 </button>
 </div>
-<img alt="LCDR Logo" src="logoinv.png" style="max-width: 240px; margin-bottom: 20px; filter: drop-shadow(0 0 10px rgba(0,0,0,0.5));"/><h1>OC INWENTARYZACJA</h1><h2 id="slogan" style="margin-top: -10px; font-weight: 400; color: #b0bec5;">Zawsze aktualne dane</h2>
+<img alt="LCDR Logo" src="logoinv.png" style="max-width: 240px; margin-bottom: 20px; filter: drop-shadow(0 0 10px rgba(0,0,0,0.5));"/><h1>OC INWENTARYZACJA</h1>
+<input id="scanner-bar" type="text" placeholder="📷 Zeskanuj lub wpisz PN..." oninput="filterByScan()" style="padding: 10px 14px; font-size: 16px; border-radius: 12px; border: 2px solid #2196f3; margin-bottom: 14px; width: 100%; max-width: 400px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);" autofocus />
+
+<h2 id="slogan" style="margin-top: -10px; font-weight: 400; color: #b0bec5;">Zawsze aktualne dane</h2>
 <input id="search" oninput="filterTable()" placeholder="🔍 Filtruj po MODEL lub PN..." type="text"/><button id="export-csv" style="margin: 10px; padding: 10px 20px; background: #1e88e5; color: white; border: none; border-radius: 12px; cursor: pointer;">⬇️ Eksportuj do CSV</button>
 <button class="refresh-btn" onclick="loadData()">🔄 Odśwież dane</button>
 <table id="data-table">
@@ -398,6 +401,16 @@ function confirmAndSet(index) {
   if (confirm("Czy na pewno chcesz zatwierdzić tę zmianę?")) {
     setQty(index);
   }
+}
+
+
+function filterByScan() {
+  const scan = document.getElementById("scanner-bar").value.toLowerCase();
+  if (!scan || scan.length < 2) return renderTable(currentData);
+  const filtered = currentData.filter(row =>
+    row["PN"]?.toString().toLowerCase().includes(scan)
+  );
+  renderTable(filtered);
 }
 
 loadData();
