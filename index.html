@@ -443,7 +443,7 @@ function filterByScan() {
   if (match >= 0) {
     scanIndex = match;
     const model = currentData[match]["MODEL"] || "Nieznany";
-    document.getElementById("modal-model").textContent = model;
+    document.getElementById("modal-model").textContent = currentData[match]["Description"] || "Nieznany";
     document.getElementById("scan-modal").style.display = "flex";
     document.getElementById("scan-sound").play();
     scanBlocked = true;
