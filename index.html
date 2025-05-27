@@ -251,11 +251,9 @@ body.dark input, body.dark button {
 <table id="data-table">
 <thead>
 <tr>
-<th>Vendor</th>
-<th>Model</th>
-<th>PN</th>
-<th>Ilość</th>
-<th>Edycja</th>
+<th>Part No</th>
+<th>Description</th>
+<th>Available</th>
 </tr>
 </thead>
 <tbody></tbody>
@@ -283,17 +281,10 @@ body.dark input, body.dark button {
         tr.className = qty == 0 ? 'no-stock' : qty < 5 ? 'low-stock' : '';
 
         tr.innerHTML = `
-          <td>${row["VENDOR"] || ""}</td>
-          <td>${row["MODEL"] || ""}</td>
-          <td>${row["PN"] || ""}</td>
-          <td id="qty-${index}">${qty}</td>
-          <td>
-            <div class="qty-controls">
-              <button onclick="changeQty(${index}, -1)"><i class='fa fa-minus'></i></button>
-              <input type="number" id="input-${index}" value="0" />
-              <button class="confirm-btn" onclick="confirmAndSet(${index})"><i class='fa fa-check'></i></button> <span style="font-size: 13px; color: #555;">wpisz wartość</span>
-            </div>
-          </td>`;
+  <td>${row["PN"] || ""}</td>
+  <td>${row["MODEL"] || ""}</td>
+  <td id="qty-${index}">${qty}</td>
+`;
         tbody.appendChild(tr);
       });
 
@@ -475,9 +466,9 @@ document.getElementById('theme-toggle').addEventListener('click', () => {
 
 // ⬇️ Export to CSV
 document.getElementById('export-csv').addEventListener('click', () => {
-  let csv = 'Vendor,Model,PN,Ilość\n';
+  let csv = 'Part No,Description,Available\n';
   currentData.forEach(row => {
-    csv += `${row["VENDOR"]},${row["MODEL"]},${row["PN"]},${row["ILOŚĆ"]}\n`;
+    csv += `${row["PN"]},${row["MODEL"]},${row["ILOŚĆ"]}\n`;
   });
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
   const link = document.createElement("a");
