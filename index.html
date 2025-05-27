@@ -453,9 +453,11 @@ function filterByScan() {
 
 function confirmScanAction() {
   if (scanIndex !== null) {
-    const input = document.getElementById(`input-${scanIndex}`);
-    input.value = -1;
-    setQty(scanIndex);
+    const qtyEl = document.getElementById(`qty-${scanIndex}`);
+    const currentQty = parseInt(qtyEl.textContent);
+    const newQty = Math.max(0, currentQty - 1);
+    qtyEl.textContent = newQty;
+    saveRow(scanIndex, newQty);
     document.getElementById("scan-modal").style.display = "none";
     document.getElementById("scanner-bar").value = "";
     renderTable(currentData);
