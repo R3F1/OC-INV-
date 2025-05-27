@@ -277,13 +277,13 @@ body.dark input, body.dark button {
       tbody.innerHTML = "";
 
       data.forEach((row, index) => {
-        const qty = row["ILOŚĆ"] || 0;
+        const qty = row["Available"] || 0;
         const tr = document.createElement("tr");
         tr.className = qty == 0 ? 'no-stock' : qty < 5 ? 'low-stock' : '';
 
         tr.innerHTML = `
-  <td>${row["PN"] || ""}</td>
-  <td>${row["MODEL"] || ""}</td>
+  <td>${row["Part No"] || ""}</td>
+  <td>${row["Description"] || ""}</td>
   <td id="qty-${index}">${qty}</td>
   <td>
     <div class="qty-controls">
@@ -329,7 +329,7 @@ async function saveRow(index, newQty) {
   const row = currentData[index];
   const updated = {
     row: {
-      "Part No": row["PN"],
+      "Part No": row["Part No"],
       "Available": newQty
     }
   };
@@ -350,8 +350,8 @@ async function saveRow(index, newQty) {
     function filterTable() {
       const search = document.getElementById("search").value.toLowerCase();
       const filtered = currentData.filter(row =>
-        row["MODEL"]?.toLowerCase().includes(search) ||
-        row["PN"]?.toString().toLowerCase().includes(search)
+        row["Description"]?.toLowerCase().includes(search) ||
+        row["Part No"]?.toString().toLowerCase().includes(search)
       );
       document.getElementById('scan-sound').play();
   renderTable(filtered);
@@ -366,11 +366,11 @@ async function saveRow(index, newQty) {
     }
 
     function updateSummary(data) {
-      const total = data.reduce((sum, row) => sum + (parseInt(row["ILOŚĆ"]) || 0), 0);
-      const uniqueModels = new Set(data.map(row => row["MODEL"])).size;
+      const total = data.reduce((sum, row) => sum + (parseInt(row["Available"]) || 0), 0);
+      const uniqueModels = new Set(data.map(row => row["Description"])).size;
       
   // 🔔 Alert system for items with 0 stock
-  const zeroItems = data.filter(row => parseInt(row["ILOŚĆ"]) === 0);
+  const zeroItems = data.filter(row => parseInt(row["Available"]) === 0);
   const banner = document.getElementById("alert-banner");
   const alertText = document.getElementById("alert-text");
 
@@ -413,7 +413,7 @@ function filterByScan() {
   const scan = document.getElementById("scanner-bar").value.toLowerCase();
   if (!scan || scan.length < 2) return renderTable(currentData);
   const filtered = currentData.filter(row =>
-    row["PN"]?.toString().toLowerCase().includes(scan)
+    row["Part No"]?.toString().toLowerCase().includes(scan)
   );
   document.getElementById('scan-sound').play();
   renderTable(filtered);
@@ -439,7 +439,7 @@ let scanIndex = null;
 function filterByScan() {
   const scan = document.getElementById("scanner-bar").value.toLowerCase();
   if (scanBlocked || !scan || scan.length < 2) return;
-  const match = currentData.findIndex(row => row["PN"]?.toString().toLowerCase().includes(scan));
+  const match = currentData.findIndex(row => row["Part No"]?.toString().toLowerCase().includes(scan));
   if (match >= 0) {
     scanIndex = match;
     const model = currentData[match]["MODEL"] || "Nieznany";
@@ -475,7 +475,7 @@ document.getElementById('theme-toggle').addEventListener('click', () => {
 document.getElementById('export-csv').addEventListener('click', () => {
   let csv = 'Part No,Description,Available\n';
   currentData.forEach(row => {
-    csv += `${row["PN"]},${row["MODEL"]},${row["ILOŚĆ"]}\n`;
+    csv += `${row["Part No"]},${row["Description"]},${row["Available"]}\n`;
   });
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
   const link = document.createElement("a");
@@ -497,7 +497,7 @@ let zeroFilterActive = false;
 document.getElementById("filter-zero").addEventListener("click", () => {
   zeroFilterActive = !zeroFilterActive;
   const filtered = zeroFilterActive
-    ? currentData.filter(row => parseInt(row["ILOŚĆ"]) === 0)
+    ? currentData.filter(row => parseInt(row["Available"]) === 0)
     : currentData;
   document.getElementById('scan-sound').play();
   renderTable(filtered);
