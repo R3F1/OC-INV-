@@ -410,6 +410,50 @@ function confirmAndSet(index) {
 
 
 
+
+
+
+async function resetScan() {
+  const btn = event.currentTarget || null;
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Ładowanie...'; }
+  const input = document.getElementById('scanner-bar');
+  input.value = '';
+  input.focus();
+  await loadData();            // pobierz najnowsze dane z Google Sheets
+  if (btn) { btn.disabled = false; btn.textContent = '📷 Nowy skan'; }
+}
+
+
+
+let scanBlocked = false;
+let scanIndex = null;
+
+function filterByScan() {
+  const scan = document.getElementById("scanner-bar").value.toLowerCase();
+  if (scanBlocked || !scan || scan.length < 2) return;
+  const match = currentData.findIndex(row => row["Part No"]?.toString().toLowerCase().includes(scan));
+  if (match >= 0) {
+    scanIndex = match;
+    const model = currentData[match]["MODEL"] || "Nieznany";
+    document.getElementById("modal-model").textContent = currentData[match]["Description"] || "Nieznany";
+    document.getElementById("scan-modal").style.display = "flex";
+    document.getElementById("scan-sound").play();
+    scanBlocked = true;
+    setTimeout(() => scanBlocked = false, 2000);
+  }
+}
+
+function confirmScanAction() {
+  if (scanIndex !== null) {
+    const qtyEl = document.getElementById(`qty-${scanIndex}`);
+    const currentQty = parseInt(qtyEl.textContent);
+    const newQty = Math.max(0, currentQty - 1);
+    qtyEl.textContent = newQty;
+    saveRow(scanIndex, newQty);
+    document.getElementById("scan-modal").style.display = "none";
+    document.getElementById("scanner-bar").value = "";
+    renderTable(currentData);
+  }
 }
 
 loadData();
