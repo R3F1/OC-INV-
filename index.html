@@ -324,16 +324,16 @@ function setQty(index) {
 
 
 
-    async function saveRow(index, newQty) {
-      const row = currentData[index];
-      const updated = [{
-        VENDOR: row["VENDOR"],
-        MODEL: row["MODEL"],
-        PN: row["PN"],
-        ILOŚĆ: newQty,
-        updated: new Date().toLocaleString()
-      }];
-      try {
+    
+async function saveRow(index, newQty) {
+  const row = currentData[index];
+  const updated = {
+    row: {
+      "Part No": row["PN"],
+      "Available": newQty
+    }
+  };
+  try {
         await fetch(apiUrl, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
